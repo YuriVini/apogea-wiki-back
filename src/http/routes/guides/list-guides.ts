@@ -19,8 +19,8 @@ export const listGuides = async (app: FastifyInstance) => {
             guides: z.array(
               z.object({
                 title: z.string(),
-                footer_text: z.string(),
-                description: z.string(),
+                description: z.string().optional(),
+                footer_text: z.string().optional(),
                 steps: z.array(
                   z.object({
                     hint: z.string().optional(),

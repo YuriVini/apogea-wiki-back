@@ -54,7 +54,7 @@ model Guide {
   id          String   @id @default(uuid())
   title       String
   steps       String
-  footer_text String
+  footerText  String   @map("footer_text")
   description String
   createdAt   DateTime @default(now()) @map("created_at")
 

@@ -51,7 +51,7 @@ export const createGuide = async (app: FastifyInstance) => {
       },
       async (request, reply) => {
         const userId = await request.getCurrentUserId();
-        const body = request.body;
+        const { title, steps, footer_text, description } = request.body;
 
         if (userId) {
           throw new UnauthorizedError("You are not authorized to create a guide");
@@ -60,10 +60,10 @@ export const createGuide = async (app: FastifyInstance) => {
         try {
           const guide = await prisma.guide.create({
             data: {
-              title: body.title,
-              description: body.description,
-              footer_text: body.footer_text,
-              steps: JSON.stringify(body.steps),
+              title,
+              description,
+              footerText: footer_text,
+              steps: JSON.stringify(steps),
             },
           });
 
