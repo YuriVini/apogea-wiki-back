@@ -17,6 +17,7 @@ export const listGuides = async (app: FastifyInstance) => {
           }),
           200: z.array(
             z.object({
+              id: z.string(),
               title: z.string(),
               description: z.string().optional(),
               footer_text: z.string().optional(),
