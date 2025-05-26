@@ -29,7 +29,7 @@ export const recoverPassword = async (app: FastifyInstance) => {
       },
     },
     async (request, reply) => {
-      const { email, locale } = request.body;
+      const { email } = request.body;
 
       const user = await prisma.user.findUnique({ where: { email } });
 
@@ -46,7 +46,7 @@ export const recoverPassword = async (app: FastifyInstance) => {
         },
       });
 
-      await sendResetPasswordEmail({ token, locale, name: user.name, email: user.email });
+      await sendResetPasswordEmail({ token, name: user.name, email: user.email });
 
       return reply.status(200).send({ message: "If this email is registered, you will receive an email." });
     }

@@ -15,6 +15,12 @@ export const register = async (app: FastifyInstance) => {
       schema: {
         tags: ["auth"],
         summary: "Create a new account",
+        body: z.object({
+          name: z.string(),
+          idDocument: z.string(),
+          email: z.string().email(),
+          password: z.string().min(6),
+        }),
         response: {
           201: z.object({
             message: z.string(),
@@ -23,17 +29,10 @@ export const register = async (app: FastifyInstance) => {
             message: z.string(),
           }),
         },
-        body: z.object({
-          name: z.string(),
-          idDocument: z.string(),
-          email: z.string().email(),
-          password: z.string().min(6),
-          locale: z.enum(["br", "es", "us", "fr"]).optional(),
-        }),
       },
     },
     async (request, reply) => {
-      const { name, email, locale, password, idDocument } = request.body;
+      const { name, email, password, idDocument } = request.body;
 
       const emailLowerCase = email.toLowerCase();
 
@@ -64,7 +63,7 @@ export const register = async (app: FastifyInstance) => {
         },
       });
 
-      await sendWelcomeEmail({ name, email, password, locale: locale || "us" });
+      await sendWelcomeEmail({ name, email, password });
 
       return reply.status(201).send({ message: "user created successfully" });
     }
