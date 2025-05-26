@@ -13,6 +13,7 @@ import { updateUser } from "./routes/user/user-update";
 import { listGuides } from "./routes/guides/list-guides";
 import { createGuide } from "./routes/guides/create-guide";
 import { updateGuide } from "./routes/guides/update-guide";
+import { deleteGuide } from "./routes/guides/delete-guide";
 import { resetPassword } from "./routes/auth/password-reset";
 import { updatePassword } from "./routes/user/update-password";
 import { getGuideById } from "./routes/guides/get-guide-by-id";
@@ -55,6 +56,7 @@ app.register(createGuide);
 app.register(listGuides);
 app.register(getGuideById);
 app.register(updateGuide);
+app.register(deleteGuide);
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3333;
 // const host = "0.0.0.0";
