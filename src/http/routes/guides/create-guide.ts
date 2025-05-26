@@ -60,6 +60,7 @@ export const createGuide = async (app: FastifyInstance) => {
         try {
           const guide = await prisma.guide.create({
             data: {
+              userId,
               title: title || "",
               steps: JSON.stringify(steps),
               footerText: footer_text || "",
