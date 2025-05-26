@@ -19,17 +19,24 @@ export const updateUser = async (app: FastifyInstance) => {
           tags: ["user"],
           summary: "Update user profile",
           body: z.object({
-            name: z.string(),
+            name: z.string().optional(),
+            avatar_url: z.string().optional(),
           }),
           response: {
-            200: z.object({
-              message: z.string(),
-            }),
             400: z.object({
               message: z.string(),
             }),
             401: z.object({
               message: z.string(),
+            }),
+            200: z.object({
+              message: z.string(),
+              user: z.object({
+                name: z.string(),
+                email: z.string(),
+                created_at: z.date(),
+                avatar_url: z.string().nullable(),
+              }),
             }),
           },
         },
@@ -42,19 +49,27 @@ export const updateUser = async (app: FastifyInstance) => {
         }
 
         try {
-          const { name } = request.body;
+          const { name, avatar_url } = request.body;
 
           const existingUser = await prisma.user.findUnique({ where: { id: userId } });
           if (!existingUser) {
             throw new BadRequestError("Usuário não encontrado");
           }
 
-          await prisma.user.update({
-            data: { name },
+          const updatedUser = await prisma.user.update({
             where: { id: userId },
+            data: { name, avatarUrl: avatar_url },
           });
 
-          return reply.status(200).send({ message: "Dados atualizados com sucesso" });
+          return reply.status(200).send({
+            message: "Dados atualizados com sucesso",
+            user: {
+              name: updatedUser.name,
+              email: updatedUser.email,
+              created_at: updatedUser.createdAt,
+              avatar_url: updatedUser.avatarUrl,
+            },
+          });
         } catch (error) {
           console.log(error);
           throw new BadRequestError("Ocorreu um erro ao atualizar o usuário");

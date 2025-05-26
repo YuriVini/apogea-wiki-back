@@ -16,7 +16,6 @@ export const recoverPassword = async (app: FastifyInstance) => {
         summary: "Recover password - send email",
         body: z.object({
           email: z.string().email(),
-          locale: z.enum(["br", "es", "us", "fr"]),
         }),
         response: {
           200: z.object({

@@ -26,8 +26,7 @@ export const profile = async (app: FastifyInstance) => {
             }),
             200: z.object({
               name: z.string(),
-              createdAt: z.date(),
-              id: z.string().uuid(),
+              created_at: z.date(),
               email: z.string().email(),
               avatar_url: z.string().nullable(),
             }),
@@ -52,7 +51,12 @@ export const profile = async (app: FastifyInstance) => {
           throw new NotFoundError("Usuário não encontrado");
         }
 
-        return reply.status(200).send({ ...user, avatar_url: user.avatarUrl });
+        return reply.status(200).send({
+          name: user.name,
+          email: user.email,
+          created_at: user.createdAt,
+          avatar_url: user.avatarUrl,
+        });
       }
     );
 };
