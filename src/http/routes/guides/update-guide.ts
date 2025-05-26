@@ -47,7 +47,7 @@ export async function updateGuide(app: FastifyInstance) {
       });
 
       if (!existingGuide) {
-        throw new NotFoundError("Guide not found");
+        throw new NotFoundError("Guia não encontrado");
       }
 
       const updatedGuide = await prisma.guide.update({

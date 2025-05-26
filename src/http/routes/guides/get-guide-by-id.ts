@@ -49,7 +49,7 @@ export const getGuideById = async (app: FastifyInstance) => {
       });
 
       if (!guide) {
-        throw new NotFoundError("Guide not found");
+        throw new NotFoundError("Guia não encontrado");
       }
 
       return reply.status(200).send({

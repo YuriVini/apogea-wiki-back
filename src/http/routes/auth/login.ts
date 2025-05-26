@@ -36,13 +36,13 @@ export const login = async (app: FastifyInstance) => {
       });
 
       if (!user) {
-        throw new UnauthorizedError("Invalid credentials");
+        throw new UnauthorizedError("Email ou senha inválidos");
       }
 
       const isPasswordValid = await compare(password, user.passwordHash);
 
       if (!isPasswordValid) {
-        throw new UnauthorizedError("Invalid credentials");
+        throw new UnauthorizedError("Email ou senha inválidos");
       }
 
       const token = await reply.jwtSign(

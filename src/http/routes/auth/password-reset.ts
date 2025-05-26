@@ -37,7 +37,7 @@ export const resetPassword = async (app: FastifyInstance) => {
       });
 
       if (!tokenEntry) {
-        throw new BadRequestError("Invalid or expired token");
+        throw new BadRequestError("Token inválido ou expirado");
       }
 
       const lastToken = await prisma.token.findFirst({
@@ -46,7 +46,7 @@ export const resetPassword = async (app: FastifyInstance) => {
       });
 
       if (lastToken?.id !== token || isTokenExpired(String(lastToken?.createdAt))) {
-        throw new BadRequestError("Invalid or expired token");
+        throw new BadRequestError("Token inválido ou expirado");
       }
 
       const hashedPassword = await hash(new_password, 6);

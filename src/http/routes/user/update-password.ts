@@ -16,7 +16,7 @@ export const updatePassword = async (app: FastifyInstance) => {
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .put(
-      "/user/update-password",
+      "/me/update-password",
       {
         schema: {
           tags: ["user"],

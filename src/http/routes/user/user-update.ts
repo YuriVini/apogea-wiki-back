@@ -6,20 +6,20 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/http/middlewares/auth";
 
 import { BadRequestError } from "../_errors/bad-request";
+import { UnauthorizedError } from "../_errors/unauthorized";
 
 export const updateUser = async (app: FastifyInstance) => {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .put(
-      "/user/update",
+      "/me",
       {
         schema: {
           tags: ["user"],
           summary: "Update user profile",
           body: z.object({
-            email: z.string().email("E-mail inválido"),
-            name: z.string().min(1, "Nome é obrigatório"),
+            name: z.string(),
           }),
           response: {
             200: z.object({
@@ -38,27 +38,26 @@ export const updateUser = async (app: FastifyInstance) => {
         const userId = await request.getCurrentUserId();
 
         if (!userId) {
-          return reply.status(401).send({ message: "User not authenticated" });
+          throw new UnauthorizedError("Usuário não autenticado");
         }
 
         try {
-          console.log("entrei");
-          const { name, email } = request.body;
+          const { name } = request.body;
 
-          const existingUser = await prisma.user.findUnique({ where: { email } });
-          if (existingUser && existingUser.id !== userId) {
-            throw new BadRequestError("E-mail já está em uso por outro usuário");
+          const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+          if (!existingUser) {
+            throw new BadRequestError("Usuário não encontrado");
           }
 
           await prisma.user.update({
+            data: { name },
             where: { id: userId },
-            data: { name, email },
           });
 
           return reply.status(200).send({ message: "Dados atualizados com sucesso" });
         } catch (error) {
           console.log(error);
-          return reply.status(500).send({ message: "Internal Server Error" });
+          throw new BadRequestError("Ocorreu um erro ao atualizar o usuário");
         }
       }
     );

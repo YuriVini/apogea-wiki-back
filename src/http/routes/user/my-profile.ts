@@ -49,7 +49,7 @@ export const profile = async (app: FastifyInstance) => {
         });
 
         if (!user) {
-          throw new NotFoundError("User not found");
+          throw new NotFoundError("Usuário não encontrado");
         }
 
         return reply.status(200).send({ ...user, avatar_url: user.avatarUrl });

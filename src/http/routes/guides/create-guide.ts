@@ -54,7 +54,7 @@ export const createGuide = async (app: FastifyInstance) => {
         const { title, steps, footer_text, description } = request.body;
 
         if (!userId) {
-          throw new UnauthorizedError("You are not authorized to create a guide");
+          throw new UnauthorizedError("Você não está autorizado a criar um guia");
         }
 
         try {
@@ -68,7 +68,7 @@ export const createGuide = async (app: FastifyInstance) => {
           });
 
           if (!guide) {
-            throw new BadRequestError("An error occurred while creating the guide");
+            throw new BadRequestError("Ocorreu um erro ao criar o guia");
           }
 
           return reply.status(201).send({
@@ -76,7 +76,7 @@ export const createGuide = async (app: FastifyInstance) => {
             message: "Guide created successfully",
           });
         } catch (error) {
-          throw new BadRequestError("An error occurred while creating the guide\n\n" + JSON.stringify(error));
+          throw new BadRequestError("Ocorreu um erro ao criar o guia\n\n" + JSON.stringify(error));
         }
       }
     );
