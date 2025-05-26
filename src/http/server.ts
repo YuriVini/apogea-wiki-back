@@ -16,6 +16,7 @@ import { updateGuide } from "./routes/guides/update-guide";
 import { resetPassword } from "./routes/auth/password-reset";
 import { updatePassword } from "./routes/user/update-password";
 import { getGuideById } from "./routes/guides/get-guide-by-id";
+import { recoverPassword } from "./routes/auth/password-recover";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -45,6 +46,7 @@ app.register(fastifyCors);
 app.register(register);
 app.register(login);
 app.register(resetPassword);
+app.register(recoverPassword);
 app.register(profile);
 app.register(updateUser);
 app.register(updatePassword);

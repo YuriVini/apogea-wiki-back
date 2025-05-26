@@ -71,7 +71,6 @@ export const updateUser = async (app: FastifyInstance) => {
             },
           });
         } catch (error) {
-          console.log(error);
           throw new BadRequestError("Ocorreu um erro ao atualizar o usuário");
         }
       }
