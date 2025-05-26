@@ -11,7 +11,6 @@ import { register } from "./routes/auth/register";
 import { profile } from "./routes/user/my-profile";
 import { updateUser } from "./routes/user/user-update";
 import { listGuides } from "./routes/guides/list-guides";
-import { checkIdDocument } from "./routes/user/check-cpf";
 import { createGuide } from "./routes/guides/create-guide";
 import { updateGuide } from "./routes/guides/update-guide";
 import { resetPassword } from "./routes/auth/password-reset";
@@ -47,7 +46,6 @@ app.register(register);
 app.register(login);
 app.register(resetPassword);
 app.register(profile);
-app.register(checkIdDocument);
 app.register(updateUser);
 app.register(updatePassword);
 

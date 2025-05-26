@@ -26,6 +26,7 @@ export const profile = async (app: FastifyInstance) => {
             }),
             200: z.object({
               name: z.string(),
+              createdAt: z.date(),
               id: z.string().uuid(),
               email: z.string().email(),
               avatar_url: z.string().nullable(),
@@ -42,6 +43,7 @@ export const profile = async (app: FastifyInstance) => {
             id: true,
             name: true,
             email: true,
+            createdAt: true,
             avatarUrl: true,
           },
         });
