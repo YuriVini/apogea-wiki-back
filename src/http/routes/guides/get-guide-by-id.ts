@@ -21,24 +21,22 @@ export const getGuideById = async (app: FastifyInstance) => {
             message: z.string(),
           }),
           200: z.object({
-            guide: z.object({
-              id: z.string(),
-              title: z.string(),
-              description: z.string().optional(),
-              footer_text: z.string().optional(),
-              steps: z.array(
-                z.object({
-                  hint: z.string().optional(),
-                  note: z.string().optional(),
-                  title: z.string().optional(),
-                  advice: z.string().optional(),
-                  benefit: z.string().optional(),
-                  image_url: z.string().optional(),
-                  description: z.string().optional(),
-                  items: z.array(z.string()).optional(),
-                })
-              ),
-            }),
+            id: z.string(),
+            title: z.string(),
+            description: z.string().optional(),
+            footer_text: z.string().optional(),
+            steps: z.array(
+              z.object({
+                hint: z.string().optional(),
+                note: z.string().optional(),
+                title: z.string().optional(),
+                advice: z.string().optional(),
+                benefit: z.string().optional(),
+                image_url: z.string().optional(),
+                description: z.string().optional(),
+                items: z.array(z.string()).optional(),
+              })
+            ),
           }),
         },
       },
@@ -55,10 +53,8 @@ export const getGuideById = async (app: FastifyInstance) => {
       }
 
       return reply.status(200).send({
-        guide: {
-          ...guide,
-          steps: JSON.parse(guide.steps),
-        },
+        ...guide,
+        steps: JSON.parse(guide.steps),
       });
     }
   );
