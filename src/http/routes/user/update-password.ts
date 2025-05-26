@@ -67,6 +67,7 @@ export const updatePassword = async (app: FastifyInstance) => {
           await prisma.user.update({
             where: { id: userId },
             data: {
+              updatedAt: new Date(),
               passwordHash: newPasswordHash,
             },
           });

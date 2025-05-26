@@ -58,7 +58,7 @@ export const updateUser = async (app: FastifyInstance) => {
 
           const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: { name, avatarUrl: avatar_url },
+            data: { name, avatarUrl: avatar_url, updatedAt: new Date() },
           });
 
           return reply.status(200).send({
