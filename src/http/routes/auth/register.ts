@@ -17,7 +17,6 @@ export const register = async (app: FastifyInstance) => {
         summary: "Create a new account",
         body: z.object({
           name: z.string(),
-          idDocument: z.string(),
           email: z.string().email(),
           password: z.string().min(6),
         }),
@@ -32,7 +31,7 @@ export const register = async (app: FastifyInstance) => {
       },
     },
     async (request, reply) => {
-      const { name, email, password, idDocument } = request.body;
+      const { name, email, password } = request.body;
 
       const emailLowerCase = email.toLowerCase();
 
@@ -44,20 +43,11 @@ export const register = async (app: FastifyInstance) => {
         throw new BadRequestError("User with same email already exists");
       }
 
-      const userWithSameIdDocument = await prisma.user.findUnique({
-        where: { idDocument },
-      });
-
-      if (userWithSameIdDocument) {
-        throw new BadRequestError("User with same document already exists");
-      }
-
       const passwordHash = await hash(password, 6);
 
       await prisma.user.create({
         data: {
           name,
-          idDocument,
           passwordHash,
           email: emailLowerCase,
         },
