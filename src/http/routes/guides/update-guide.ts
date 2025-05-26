@@ -35,7 +35,6 @@ export async function updateGuide(app: FastifyInstance) {
         tags: ["Guides"],
         summary: "Update a guide",
         body: updateGuideBodySchema,
-        security: [{ bearerAuth: [] }],
         params: updateGuideParamsSchema,
       },
     },
