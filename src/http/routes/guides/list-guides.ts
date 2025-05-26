@@ -15,27 +15,25 @@ export const listGuides = async (app: FastifyInstance) => {
           400: z.object({
             message: z.string(),
           }),
-          200: z.object({
-            guides: z.array(
-              z.object({
-                title: z.string(),
-                description: z.string().optional(),
-                footer_text: z.string().optional(),
-                steps: z.array(
-                  z.object({
-                    hint: z.string().optional(),
-                    note: z.string().optional(),
-                    title: z.string().optional(),
-                    advice: z.string().optional(),
-                    benefit: z.string().optional(),
-                    image_url: z.string().optional(),
-                    description: z.string().optional(),
-                    items: z.array(z.string()).optional(),
-                  })
-                ),
-              })
-            ),
-          }),
+          200: z.array(
+            z.object({
+              title: z.string(),
+              description: z.string().optional(),
+              footer_text: z.string().optional(),
+              steps: z.array(
+                z.object({
+                  hint: z.string().optional(),
+                  note: z.string().optional(),
+                  title: z.string().optional(),
+                  advice: z.string().optional(),
+                  benefit: z.string().optional(),
+                  image_url: z.string().optional(),
+                  description: z.string().optional(),
+                  items: z.array(z.string()).optional(),
+                })
+              ),
+            })
+          ),
         },
       },
     },
@@ -47,7 +45,7 @@ export const listGuides = async (app: FastifyInstance) => {
         steps: JSON.parse(guide.steps),
       }));
 
-      return reply.status(200).send({ guides: formattedGuides });
+      return reply.status(200).send(formattedGuides);
     }
   );
 };

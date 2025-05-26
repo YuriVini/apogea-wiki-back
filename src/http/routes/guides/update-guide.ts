@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { type FastifyInstance } from "fastify";
+import { type ZodTypeProvider } from "fastify-type-provider-zod";
+
+import { auth } from "@/http/middlewares/auth";
 
 import { prisma } from "../../../lib/prisma";
 import { NotFoundError } from "../_errors/not-found";
@@ -27,40 +30,43 @@ const updateGuideParamsSchema = z.object({
 });
 
 export async function updateGuide(app: FastifyInstance) {
-  app.put(
-    "/guides/:id",
-    {
-      schema: {
-        tags: ["Guides"],
-        summary: "Update a guide",
-        body: updateGuideBodySchema,
-        security: [{ bearerAuth: [] }],
-        params: updateGuideParamsSchema,
-      },
-    },
-    async (request, reply) => {
-      const { id } = updateGuideParamsSchema.parse(request.params);
-      const { title, steps, footerText, description } = updateGuideBodySchema.parse(request.body);
-
-      const existingGuide = await prisma.guide.findUnique({
-        where: { id },
-      });
-
-      if (!existingGuide) {
-        throw new NotFoundError("Guide not found");
-      }
-
-      const updatedGuide = await prisma.guide.update({
-        where: { id },
-        data: {
-          title,
-          footerText,
-          description,
-          steps: JSON.stringify(steps),
+  app
+    .withTypeProvider<ZodTypeProvider>()
+    .register(auth)
+    .put(
+      "/guides/:id",
+      {
+        schema: {
+          tags: ["Guides"],
+          summary: "Update a guide",
+          body: updateGuideBodySchema,
+          security: [{ bearerAuth: [] }],
+          params: updateGuideParamsSchema,
         },
-      });
+      },
+      async (request, reply) => {
+        const { id } = updateGuideParamsSchema.parse(request.params);
+        const { title, steps, footerText, description } = updateGuideBodySchema.parse(request.body);
 
-      return reply.status(200).send(updatedGuide);
-    }
-  );
+        const existingGuide = await prisma.guide.findUnique({
+          where: { id },
+        });
+
+        if (!existingGuide) {
+          throw new NotFoundError("Guide not found");
+        }
+
+        const updatedGuide = await prisma.guide.update({
+          where: { id },
+          data: {
+            title,
+            footerText,
+            description,
+            steps: JSON.stringify(steps),
+          },
+        });
+
+        return reply.status(200).send(updatedGuide);
+      }
+    );
 }

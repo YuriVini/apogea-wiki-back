@@ -4,7 +4,7 @@ import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "@/lib/prisma";
-import { sendWelcomeEmail } from "@/services/emailService";
+// import { sendWelcomeEmail } from "@/services/emailService";
 
 import { BadRequestError } from "../_errors/bad-request";
 
@@ -63,7 +63,7 @@ export const register = async (app: FastifyInstance) => {
         },
       });
 
-      await sendWelcomeEmail({ name, email, password });
+      // await sendWelcomeEmail({ name, email, password });
 
       return reply.status(201).send({ message: "user created successfully" });
     }

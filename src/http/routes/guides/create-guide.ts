@@ -53,7 +53,7 @@ export const createGuide = async (app: FastifyInstance) => {
         const userId = await request.getCurrentUserId();
         const { title, steps, footer_text, description } = request.body;
 
-        if (userId) {
+        if (!userId) {
           throw new UnauthorizedError("You are not authorized to create a guide");
         }
 
