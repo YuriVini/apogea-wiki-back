@@ -31,9 +31,9 @@ export const createGuide = async (app: FastifyInstance) => {
             }),
           },
           body: z.object({
-            title: z.string(),
-            footer_text: z.string(),
-            description: z.string(),
+            title: z.string().optional(),
+            footer_text: z.string().optional(),
+            description: z.string().optional(),
             steps: z.array(
               z.object({
                 hint: z.string().optional(),
@@ -60,10 +60,10 @@ export const createGuide = async (app: FastifyInstance) => {
         try {
           const guide = await prisma.guide.create({
             data: {
-              title,
-              description,
-              footerText: footer_text,
+              title: title || "",
               steps: JSON.stringify(steps),
+              footerText: footer_text || "",
+              description: description || "",
             },
           });
 
