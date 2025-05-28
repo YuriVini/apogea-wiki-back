@@ -30,6 +30,7 @@ model User {
   role   RoleType @default(USER)
   tokens Token[]
   guides Guide[]
+  builds Build[]
 
   @@map("users")
 }
@@ -62,4 +63,102 @@ model Guide {
   userId String @default("") @map("user_id")
 
   @@map("guides")
+}
+
+model Build {
+  id        String   @id @default(uuid())
+  title     String
+  overview  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user           User            @relation(fields: [userId], references: [id])
+  userId         String          @map("user_id")
+  equipment      Equipment[]     @relation("build_equipment")
+  requirements   Requirement[]
+  mainSkills     Skill[]         @relation("main_skills")
+  supportSkills  Skill[]         @relation("support_skills")
+  characterStats CharacterStats?
+  strategy       Strategy[]
+
+  @@map("builds")
+}
+
+model Equipment {
+  id          String  @id @default(uuid())
+  name        String
+  type        String
+  category    String
+  imageUrl    String  @map("image_url")
+  slot        String
+  range       String? @map("range")
+  size        String? @map("size")
+  damage      String? @map("damage")
+  defense     String? @map("defense")
+  attributes  String? @map("attributes")
+  weight      String? @map("weight")
+  dropBy      String? @map("drop_by")
+  rarity      String? @map("rarity")
+  sellTo      String? @map("sell_to")
+  buyFrom     String? @map("buy_from")
+  attackSpeed String? @map("attack_speed")
+
+  // Relations
+  builds Build[] @relation("build_equipment")
+
+  @@map("equipments")
+}
+
+model Requirement {
+  id   String @id @default(uuid())
+  name String
+
+  // Relations
+  build   Build  @relation(fields: [buildId], references: [id])
+  buildId String @map("build_id")
+
+  @@map("requirements")
+}
+
+model Skill {
+  id   String @id @default(uuid())
+  name String
+
+  // Relations
+  mainBuilds    Build[] @relation("main_skills")
+  supportBuilds Build[] @relation("support_skills")
+
+  @@map("skills")
+}
+
+model CharacterStats {
+  id          String @id @default(uuid())
+  mana        Int
+  level       Int
+  magic       Int
+  hpRegen     Int    @map("hp_regen")
+  mpRegen     Int    @map("mp_regen")
+  health      Int
+  capacity    Int
+  weaponSkill Int    @map("weapon_skill")
+  class       String
+  pvpStatus   String @map("pvp_status")
+
+  // Relations
+  build   Build  @relation(fields: [buildId], references: [id])
+  buildId String @unique @map("build_id")
+
+  @@map("character_stats")
+}
+
+model Strategy {
+  id      String @id @default(uuid())
+  content String
+
+  // Relations
+  build   Build  @relation(fields: [buildId], references: [id])
+  buildId String @map("build_id")
+
+  @@map("strategies")
 }

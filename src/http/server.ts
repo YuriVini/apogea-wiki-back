@@ -6,10 +6,12 @@ import fastifySwaggerUI from "@fastify/swagger-ui";
 import { validatorCompiler, serializerCompiler, jsonSchemaTransform, type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { login } from "./routes/auth/login";
+import { buildsRoutes } from "./routes/builds";
 import { errorHandler } from "./error-handling";
 import { register } from "./routes/auth/register";
 import { profile } from "./routes/user/my-profile";
 import { updateUser } from "./routes/user/user-update";
+import { equipmentsRoutes } from "./routes/equipments";
 import { listGuides } from "./routes/guides/list-guides";
 import { createGuide } from "./routes/guides/create-guide";
 import { updateGuide } from "./routes/guides/update-guide";
@@ -57,6 +59,9 @@ app.register(listGuides);
 app.register(getGuideById);
 app.register(updateGuide);
 app.register(deleteGuide);
+
+app.register(buildsRoutes);
+app.register(equipmentsRoutes);
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3333;
 // const host = "0.0.0.0";

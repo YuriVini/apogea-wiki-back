@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky",
     "build": "npx prisma generate && tsc",
-    "start": "node dist/http/server.js"
+    "start": "node dist/http/server.js",
+    "seed:equipments": "tsx src/http/seeds/equipments.ts"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
