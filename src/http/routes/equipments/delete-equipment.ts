@@ -1,0 +1,45 @@
+import { z } from "zod";
+import { type FastifyInstance } from "fastify";
+import { type ZodTypeProvider } from "fastify-type-provider-zod";
+
+import { prisma } from "../../../lib/prisma";
+
+export async function deleteEquipment(app: FastifyInstance) {
+  app.withTypeProvider<ZodTypeProvider>().delete(
+    "/equipments/:id",
+    {
+      schema: {
+        tags: ["equipments"],
+        summary: "Delete an equipment",
+        params: z.object({
+          id: z.string().uuid(),
+        }),
+        response: {
+          204: z.null(),
+          404: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    async (request, reply) => {
+      const { id } = request.params;
+
+      const equipment = await prisma.equipment.findUnique({
+        where: { id },
+      });
+
+      if (!equipment) {
+        return reply.status(404).send({
+          message: "Equipment not found",
+        });
+      }
+
+      await prisma.equipment.delete({
+        where: { id },
+      });
+
+      return reply.status(204).send();
+    }
+  );
+}

@@ -1272,6 +1272,8 @@ const EQUIPEMNT_SEEDS = [
 async function main() {
   console.log("Start seeding...");
 
+  await prisma.equipment.deleteMany();
+
   for (const equipment of EQUIPEMNT_SEEDS) {
     await prisma.equipment.create({
       data: {
