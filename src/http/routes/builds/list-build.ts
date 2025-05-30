@@ -42,6 +42,7 @@ export async function listBuilds(app: FastifyInstance) {
           overview: build.overview,
           createdAt: build.createdAt,
           updatedAt: build.updatedAt,
+          characterClass: build.characterClass,
           strategy: build.strategy.split("/-/"),
           characterStats: JSON.parse(build.characterStats),
           equipment: {

@@ -44,18 +44,17 @@ export async function getBuildById(app: FastifyInstance) {
         },
       });
 
-      console.log("----------------------------------asfdada-----------------------------------", build);
-
       if (!build) {
         throw new NotFoundError("Build não encontrada");
       }
 
-      const buildsFormatted = {
+      const buildsFormatted: z.infer<typeof buildSchema> = {
         id: build?.id,
         title: build?.title,
         overview: build?.overview,
         createdAt: build?.createdAt,
         updatedAt: build?.updatedAt,
+        characterClass: build?.characterClass,
         strategy: build?.strategy.split("/-/"),
         characterStats: JSON.parse(build?.characterStats),
         equipment: {

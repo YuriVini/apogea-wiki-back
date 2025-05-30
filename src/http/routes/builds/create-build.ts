@@ -11,16 +11,15 @@ export const buildSchemaRequest = z.object({
   title: z.string(),
   overview: z.string(),
   strategy: z.array(z.string()),
+  characterClass: z.enum(["Knight", "Mage", "Squire", "Rogue"]),
   characterStats: z.object({
     mana: z.number(),
     level: z.number(),
     magic: z.number(),
-    class: z.string(),
     health: z.number(),
     hpRegen: z.number(),
     mpRegen: z.number(),
     capacity: z.number(),
-    pvpStatus: z.string(),
     weaponSkill: z.number(),
   }),
   equipment: z.object({
@@ -64,7 +63,7 @@ export async function createBuild(app: FastifyInstance) {
         },
       },
       async (request, reply) => {
-        const { title, overview, strategy, equipment, characterStats } = request.body;
+        const { title, overview, strategy, equipment, characterStats, characterClass } = request.body;
         const userId = await request.getCurrentUserId();
 
         if (!userId) {
@@ -76,6 +75,7 @@ export async function createBuild(app: FastifyInstance) {
             title,
             userId,
             overview,
+            characterClass,
             legsId: equipment.legs,
             ringId: equipment.ring,
             bootsId: equipment.boots,

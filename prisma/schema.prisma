@@ -65,14 +65,22 @@ model Guide {
   @@map("guides")
 }
 
+enum CharacterClass {
+  Knight
+  Mage
+  Squire
+  Rogue
+}
+
 model Build {
-  id             String   @id @default(uuid())
+  id             String         @id @default(uuid())
   title          String
   overview       String
   strategy       String
-  characterStats String
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  characterStats String         @map("character_stats")
+  characterClass CharacterClass @map("character_class")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
 
   // Relations
   user   User   @relation(fields: [userId], references: [id])

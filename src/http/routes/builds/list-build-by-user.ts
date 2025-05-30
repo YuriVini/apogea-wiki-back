@@ -12,16 +12,15 @@ export const buildSchema = z.object({
   overview: z.string(),
   id: z.string().uuid(),
   strategy: z.array(z.string()),
+  characterClass: z.enum(["Knight", "Mage", "Squire", "Rogue"]),
   characterStats: z.object({
     mana: z.number(),
     level: z.number(),
     magic: z.number(),
-    class: z.string(),
     health: z.number(),
     hpRegen: z.number(),
     mpRegen: z.number(),
     capacity: z.number(),
-    pvpStatus: z.string(),
     weaponSkill: z.number(),
   }),
   equipment: z.object({
@@ -74,13 +73,14 @@ export async function listBuildsByUser(app: FastifyInstance) {
         },
       });
 
-      const buildsFormatted = builds.map((build) => {
+      const buildsFormatted: z.infer<typeof buildSchemaArrayResponse> = builds.map((build) => {
         return {
           id: build.id,
           title: build.title,
           overview: build.overview,
           createdAt: build.createdAt,
           updatedAt: build.updatedAt,
+          characterClass: build.characterClass,
           strategy: build.strategy.split("/-/"),
           characterStats: JSON.parse(build.characterStats),
           equipment: {

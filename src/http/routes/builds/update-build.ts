@@ -39,7 +39,6 @@ export async function updateBuild(app: FastifyInstance) {
       async (request, reply) => {
         const userId = await request.getCurrentUserId();
         const { id } = request.params;
-        console.log("----------------------------------asfdada-----------------------------------");
         const body = request.body;
 
         const build = await prisma.build.findUnique({
@@ -94,6 +93,7 @@ export async function updateBuild(app: FastifyInstance) {
           overview: updatedBuild?.overview,
           createdAt: updatedBuild?.createdAt,
           updatedAt: updatedBuild?.updatedAt,
+          characterClass: updatedBuild?.characterClass,
           strategy: updatedBuild?.strategy.split("/-/"),
           characterStats: JSON.parse(updatedBuild?.characterStats),
           equipment: {
