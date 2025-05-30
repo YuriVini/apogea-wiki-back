@@ -10,6 +10,7 @@ import { userRoutes } from "./routes/user";
 import { buildsRoutes } from "./routes/builds";
 import { guidesRoutes } from "./routes/guides";
 import { errorHandler } from "./error-handling";
+import { ratingsRoutes } from "./routes/ratings";
 import { equipmentsRoutes } from "./routes/equipments";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
@@ -42,6 +43,7 @@ app.register(userRoutes);
 app.register(guidesRoutes);
 app.register(buildsRoutes);
 app.register(equipmentsRoutes);
+app.register(ratingsRoutes);
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3333;
 // const host = "0.0.0.0";
