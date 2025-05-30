@@ -27,7 +27,9 @@ export const profile = async (app: FastifyInstance) => {
             200: z.object({
               name: z.string(),
               created_at: z.date(),
+              updated_at: z.date(),
               email: z.string().email(),
+              role: z.enum(["ADMIN", "USER"]),
               avatar_url: z.string().nullable(),
             }),
           },
@@ -40,9 +42,11 @@ export const profile = async (app: FastifyInstance) => {
           where: { id: userId },
           select: {
             id: true,
+            role: true,
             name: true,
             email: true,
             createdAt: true,
+            updatedAt: true,
             avatarUrl: true,
           },
         });
@@ -53,8 +57,10 @@ export const profile = async (app: FastifyInstance) => {
 
         return reply.status(200).send({
           name: user.name,
+          role: user.role,
           email: user.email,
           created_at: user.createdAt,
+          updated_at: user.updatedAt,
           avatar_url: user.avatarUrl,
         });
       }

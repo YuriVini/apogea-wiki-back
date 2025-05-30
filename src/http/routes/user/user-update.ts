@@ -35,6 +35,8 @@ export const updateUser = async (app: FastifyInstance) => {
                 name: z.string(),
                 email: z.string(),
                 created_at: z.date(),
+                updated_at: z.date(),
+                role: z.enum(["ADMIN", "USER"]),
                 avatar_url: z.string().nullable(),
               }),
             }),
@@ -58,15 +60,17 @@ export const updateUser = async (app: FastifyInstance) => {
 
           const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: { name, avatarUrl: avatar_url, updatedAt: new Date() },
+            data: { name, avatarUrl: avatar_url },
           });
 
           return reply.status(200).send({
             message: "Dados atualizados com sucesso",
             user: {
               name: updatedUser.name,
+              role: updatedUser.role,
               email: updatedUser.email,
               created_at: updatedUser.createdAt,
+              updated_at: updatedUser.updatedAt,
               avatar_url: updatedUser.avatarUrl,
             },
           });
