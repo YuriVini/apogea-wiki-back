@@ -2,140 +2,115 @@ import { z } from "zod";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
+import { auth } from "@/http/middlewares/auth";
+
 import { prisma } from "../../../lib/prisma";
-import { buildSchemaRequest } from "./list-build-by-user";
+import { buildSchema } from "./list-build-by-user";
+import { buildSchemaRequest } from "./create-build";
+import { NotFoundError } from "../_errors/not-found";
+import { UnauthorizedError } from "../_errors/unauthorized";
 
 export async function updateBuild(app: FastifyInstance) {
-  app.withTypeProvider<ZodTypeProvider>().put(
-    "/builds/:id",
-    {
-      schema: {
-        tags: ["builds"],
-        summary: "Update a build",
-        params: z.object({
-          id: z.string().uuid(),
-        }),
-        response: {
-          200: buildSchemaRequest,
-          403: z.object({
-            message: z.string(),
+  app
+    .withTypeProvider<ZodTypeProvider>()
+    .register(auth)
+    .put(
+      "/builds/:id",
+      {
+        schema: {
+          tags: ["builds"],
+          body: buildSchemaRequest,
+          summary: "Update a build",
+          params: z.object({
+            id: z.string().uuid(),
           }),
-          404: z.object({
-            message: z.string(),
-          }),
+          response: {
+            500: z.null(),
+            200: buildSchema,
+            403: z.object({
+              message: z.string(),
+            }),
+            404: z.object({
+              message: z.string(),
+            }),
+          },
         },
-        body: z.object({
-          title: z.string().optional(),
-          overview: z.string().optional(),
-          strategy: z.array(z.string()).optional(),
-          mainSkills: z.array(z.string()).optional(),
-          requirements: z.array(z.string()).optional(),
-          supportSkills: z.array(z.string()).optional(),
-          equipment: z
-            .array(
-              z.object({
-                name: z.string(),
-                type: z.string(),
-                slot: z.string(),
-                category: z.string(),
-                imageUrl: z.string(),
-              })
-            )
-            .optional(),
-          characterStats: z
-            .object({
-              mana: z.number(),
-              level: z.number(),
-              magic: z.number(),
-              class: z.string(),
-              health: z.number(),
-              hpRegen: z.number(),
-              mpRegen: z.number(),
-              capacity: z.number(),
-              pvpStatus: z.string(),
-              weaponSkill: z.number(),
-            })
-            .optional(),
-        }),
       },
-    },
-    async (request, reply) => {
-      const userId = await request.getCurrentUserId();
-      const { id } = request.params;
-      const updateData = request.body;
+      async (request, reply) => {
+        const userId = await request.getCurrentUserId();
+        const { id } = request.params;
+        console.log("----------------------------------asfdada-----------------------------------");
+        const body = request.body;
 
-      // Verify if the build belongs to the user
-      const build = await prisma.build.findUnique({
-        where: { id },
-      });
+        const build = await prisma.build.findUnique({
+          where: { id },
+        });
 
-      if (!build) {
-        return reply.status(404).send({ message: "Build not found" });
+        if (!build) {
+          throw new NotFoundError("Build não encontrada");
+        }
+
+        if (build.userId !== userId) {
+          throw new UnauthorizedError("Não autorizado");
+        }
+
+        const updatedBuild = await prisma.build.update({
+          where: { id },
+          include: {
+            ring: true,
+            legs: true,
+            boots: true,
+            chest: true,
+            helmet: true,
+            leftHand: true,
+            backpack: true,
+            necklace: true,
+            rightHand: true,
+            accessory: true,
+          },
+          data: {
+            ...build,
+            title: body.title,
+            updatedAt: new Date(),
+            overview: body.overview,
+            ringId: body.equipment.ring,
+            legsId: body.equipment.legs,
+            bootsId: body.equipment.boots,
+            chestId: body.equipment.chest,
+            helmetId: body.equipment.helmet,
+            necklaceId: body.equipment.necklace,
+            leftHandId: body.equipment.leftHand,
+            backpackId: body.equipment.backpack,
+            rightHandId: body.equipment.rightHand,
+            accessoryId: body.equipment.accessory,
+            strategy: body?.strategy?.join("/-/") ?? "",
+            characterStats: JSON.stringify(body.characterStats),
+          },
+        });
+
+        const buildsFormatted = {
+          id: updatedBuild?.id,
+          title: updatedBuild?.title,
+          overview: updatedBuild?.overview,
+          createdAt: updatedBuild?.createdAt,
+          updatedAt: updatedBuild?.updatedAt,
+          strategy: updatedBuild?.strategy.split("/-/"),
+          characterStats: JSON.parse(updatedBuild?.characterStats),
+          equipment: {
+            ring: updatedBuild?.ring,
+            legs: updatedBuild?.legs,
+            boots: updatedBuild?.boots,
+            chest: updatedBuild?.chest,
+            helmet: updatedBuild?.helmet,
+            leftHand: updatedBuild?.leftHand,
+            backpack: updatedBuild?.backpack,
+            necklace: updatedBuild?.necklace,
+            rightHand: updatedBuild?.rightHand,
+            accessory: updatedBuild?.accessory,
+          },
+        };
+
+        return reply.send(buildsFormatted);
       }
-
-      if (build.userId !== userId) {
-        return reply.status(403).send({ message: "Not authorized" });
-      }
-
-      // Update the build
-      const updatedBuild = await prisma.build.update({
-        where: { id },
-        include: {
-          strategy: true,
-          equipment: true,
-          mainSkills: true,
-          requirements: true,
-          supportSkills: true,
-          characterStats: true,
-        },
-        data: {
-          title: updateData.title,
-          overview: updateData.overview,
-          characterStats: updateData.characterStats
-            ? {
-                update: updateData.characterStats,
-              }
-            : undefined,
-          equipment: updateData.equipment
-            ? {
-                deleteMany: {},
-                create: updateData.equipment,
-              }
-            : undefined,
-          strategy: updateData.strategy
-            ? {
-                deleteMany: {},
-                create: updateData.strategy.map((content) => ({ content })),
-              }
-            : undefined,
-          requirements: updateData.requirements
-            ? {
-                deleteMany: {},
-                create: updateData.requirements.map((name) => ({ name })),
-              }
-            : undefined,
-          mainSkills: updateData.mainSkills
-            ? {
-                set: [],
-                connectOrCreate: updateData.mainSkills.map((name) => ({
-                  create: { name },
-                  where: { id: name },
-                })),
-              }
-            : undefined,
-          supportSkills: updateData.supportSkills
-            ? {
-                set: [],
-                connectOrCreate: updateData.supportSkills.map((name) => ({
-                  create: { name },
-                  where: { id: name },
-                })),
-              }
-            : undefined,
-        },
-      });
-
-      return reply.send(buildSchemaRequest.parse(updatedBuild));
-    }
-  );
+    );
 }

@@ -3,6 +3,8 @@ import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
+import { NotFoundError } from "../_errors/not-found";
+import { UnauthorizedError } from "../_errors/unauthorized";
 
 export async function deleteBuild(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().delete(
@@ -15,6 +17,7 @@ export async function deleteBuild(app: FastifyInstance) {
           id: z.string().uuid(),
         }),
         response: {
+          500: z.null(),
           204: z.null(),
           403: z.object({
             message: z.string(),
@@ -29,20 +32,18 @@ export async function deleteBuild(app: FastifyInstance) {
       const { id } = request.params;
       const userId = await request.getCurrentUserId();
 
-      // Verify if the build belongs to the user
       const build = await prisma.build.findUnique({
         where: { id },
       });
 
       if (!build) {
-        return reply.status(404).send({ message: "Build not found" });
+        throw new NotFoundError("Build não encontrada");
       }
 
       if (build.userId !== userId) {
-        return reply.status(403).send({ message: "Not authorized" });
+        throw new UnauthorizedError("Não autorizado");
       }
 
-      // Delete the build and all related data
       await prisma.build.delete({
         where: { id },
       });

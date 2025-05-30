@@ -4,27 +4,25 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
 
-const equipmentSchema = z.array(
-  z.object({
-    name: z.string(),
-    type: z.string(),
-    slot: z.string(),
-    category: z.string(),
-    imageUrl: z.string(),
-    id: z.string().uuid(),
-    size: z.string().nullable().nullish().optional(),
-    range: z.string().nullable().nullish().optional(),
-    damage: z.string().nullable().nullish().optional(),
-    weight: z.string().nullable().nullish().optional(),
-    dropBy: z.string().nullable().nullish().optional(),
-    rarity: z.string().nullable().nullish().optional(),
-    sellTo: z.string().nullable().nullish().optional(),
-    buyFrom: z.string().nullable().nullish().optional(),
-    defense: z.string().nullable().nullish().optional(),
-    attributes: z.string().nullable().nullish().optional(),
-    attackSpeed: z.string().nullable().nullish().optional(),
-  })
-);
+export const equipmentSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+  category: z.string(),
+  id: z.string().uuid(),
+  range: z.string().nullable().optional(),
+  damage: z.string().nullable().optional(),
+  weight: z.string().nullable().optional(),
+  dropBy: z.string().nullable().optional(),
+  rarity: z.string().nullable().optional(),
+  sellTo: z.string().nullable().optional(),
+  buyFrom: z.string().nullable().optional(),
+  defense: z.string().nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
+  attributes: z.string().nullable().optional(),
+  attackSpeed: z.string().nullable().optional(),
+});
+
+const equipmentSchemaArray = z.array(equipmentSchema);
 
 export async function listEquipments(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().get(
@@ -33,34 +31,26 @@ export async function listEquipments(app: FastifyInstance) {
       schema: {
         tags: ["equipments"],
         summary: "List all equipments",
-        querystring: z.object({
+        response: {
+          200: equipmentSchemaArray,
+        },
+        params: z.object({
           type: z.string().optional(),
           category: z.string().optional(),
         }),
-        response: {
-          200: equipmentSchema,
-          400: z.object({
-            message: z.string(),
-          }),
-        },
       },
     },
     async (request, reply) => {
-      const { type, category } = request.query;
+      const { type, category } = request.params;
 
       const equipments = await prisma.equipment.findMany({
-        orderBy: {
-          name: "asc",
-        },
         where: {
-          ...(type && { type }),
-          ...(category && { category }),
+          type: type || undefined,
+          category: category || undefined,
         },
       });
 
-      const equipmentsFormatted = equipmentSchema.parse(equipments);
-
-      return reply.status(200).send(equipmentsFormatted);
+      return reply.status(200).send(equipments);
     }
   );
 }

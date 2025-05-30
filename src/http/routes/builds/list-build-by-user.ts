@@ -3,48 +3,15 @@ import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
+import { equipmentSchema } from "../equipments/list-equipments";
 
-export const buildSchemaRequest = z.object({
+export const buildSchema = z.object({
   title: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
   overview: z.string(),
   id: z.string().uuid(),
-  userId: z.string().uuid(),
-  mainSkills: z.array(
-    z.object({
-      name: z.string(),
-      id: z.string().uuid(),
-    })
-  ),
-  strategy: z.array(
-    z.object({
-      content: z.string(),
-      id: z.string().uuid(),
-    })
-  ),
-  requirements: z.array(
-    z.object({
-      name: z.string(),
-      id: z.string().uuid(),
-    })
-  ),
-  supportSkills: z.array(
-    z.object({
-      name: z.string(),
-      id: z.string().uuid(),
-    })
-  ),
-  equipment: z.array(
-    z.object({
-      name: z.string(),
-      type: z.string(),
-      slot: z.string(),
-      category: z.string(),
-      imageUrl: z.string(),
-      id: z.string().uuid(),
-    })
-  ),
+  strategy: z.array(z.string()),
   characterStats: z.object({
     mana: z.number(),
     level: z.number(),
@@ -54,13 +21,24 @@ export const buildSchemaRequest = z.object({
     hpRegen: z.number(),
     mpRegen: z.number(),
     capacity: z.number(),
-    id: z.string().uuid(),
     pvpStatus: z.string(),
     weaponSkill: z.number(),
   }),
+  equipment: z.object({
+    legs: equipmentSchema.nullable(),
+    ring: equipmentSchema.nullable(),
+    boots: equipmentSchema.nullable(),
+    chest: equipmentSchema.nullable(),
+    helmet: equipmentSchema.nullable(),
+    leftHand: equipmentSchema.nullable(),
+    necklace: equipmentSchema.nullable(),
+    backpack: equipmentSchema.nullable(),
+    rightHand: equipmentSchema.nullable(),
+    accessory: equipmentSchema.nullable(),
+  }),
 });
 
-export const buildSchemaResponse = z.array(buildSchemaRequest);
+export const buildSchemaArrayResponse = z.array(buildSchema);
 
 export async function listBuildsByUser(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().get(
@@ -69,9 +47,7 @@ export async function listBuildsByUser(app: FastifyInstance) {
       schema: {
         tags: ["builds"],
         summary: "List builds by current user",
-        response: {
-          200: buildSchemaResponse,
-        },
+        response: { 500: z.null(), 200: z.array(buildSchema) },
       },
     },
     async (request, reply) => {
@@ -85,16 +61,44 @@ export async function listBuildsByUser(app: FastifyInstance) {
           createdAt: "desc",
         },
         include: {
-          strategy: true,
-          equipment: true,
-          mainSkills: true,
-          requirements: true,
-          supportSkills: true,
-          characterStats: true,
+          ring: true,
+          legs: true,
+          boots: true,
+          chest: true,
+          helmet: true,
+          leftHand: true,
+          backpack: true,
+          necklace: true,
+          rightHand: true,
+          accessory: true,
         },
       });
 
-      return reply.send(buildSchemaResponse.parse(builds));
+      const buildsFormatted = builds.map((build) => {
+        return {
+          id: build.id,
+          title: build.title,
+          overview: build.overview,
+          createdAt: build.createdAt,
+          updatedAt: build.updatedAt,
+          strategy: build.strategy.split("/-/"),
+          characterStats: JSON.parse(build.characterStats),
+          equipment: {
+            ring: build.ring,
+            legs: build.legs,
+            boots: build.boots,
+            chest: build.chest,
+            helmet: build.helmet,
+            necklace: build.necklace,
+            leftHand: build.leftHand,
+            backpack: build.backpack,
+            rightHand: build.rightHand,
+            accessory: build.accessory,
+          },
+        };
+      });
+
+      return reply.send(buildsFormatted || []);
     }
   );
 }

@@ -66,21 +66,39 @@ model Guide {
 }
 
 model Build {
-  id        String   @id @default(uuid())
-  title     String
-  overview  String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  title          String
+  overview       String
+  strategy       String
+  characterStats String
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
-  user           User            @relation(fields: [userId], references: [id])
-  userId         String          @map("user_id")
-  equipment      Equipment[]     @relation("build_equipment")
-  requirements   Requirement[]
-  mainSkills     Skill[]         @relation("main_skills")
-  supportSkills  Skill[]         @relation("support_skills")
-  characterStats CharacterStats?
-  strategy       Strategy[]
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  // Equipment relations
+  ring        Equipment? @relation("ring", fields: [ringId], references: [id], onDelete: NoAction)
+  ringId      String     @map("ring_id")
+  necklace    Equipment? @relation("necklace", fields: [necklaceId], references: [id], onDelete: NoAction)
+  necklaceId  String     @map("necklace_id")
+  legs        Equipment? @relation("legs", fields: [legsId], references: [id], onDelete: NoAction)
+  legsId      String     @map("legs_id")
+  boots       Equipment? @relation("boots", fields: [bootsId], references: [id], onDelete: NoAction)
+  bootsId     String     @map("boots_id")
+  chest       Equipment? @relation("chest", fields: [chestId], references: [id], onDelete: NoAction)
+  chestId     String     @map("chest_id")
+  helmet      Equipment? @relation("helmet", fields: [helmetId], references: [id], onDelete: NoAction)
+  helmetId    String     @map("helmet_id")
+  leftHand    Equipment? @relation("leftHand", fields: [leftHandId], references: [id], onDelete: NoAction)
+  leftHandId  String     @map("left_hand_id")
+  backpack    Equipment? @relation("backpack", fields: [backpackId], references: [id], onDelete: NoAction)
+  backpackId  String     @map("backpack_id")
+  rightHand   Equipment? @relation("rightHand", fields: [rightHandId], references: [id], onDelete: NoAction)
+  rightHandId String     @map("right_hand_id")
+  accessory   Equipment? @relation("accessory", fields: [accessoryId], references: [id], onDelete: NoAction)
+  accessoryId String     @map("accessory_id")
 
   @@map("builds")
 }
@@ -91,7 +109,6 @@ model Equipment {
   type        String
   category    String
   imageUrl    String  @map("image_url")
-  slot        String
   range       String? @map("range")
   size        String? @map("size")
   damage      String? @map("damage")
@@ -105,60 +122,16 @@ model Equipment {
   attackSpeed String? @map("attack_speed")
 
   // Relations
-  builds Build[] @relation("build_equipment")
+  ringBuilds      Build[] @relation("ring")
+  bootsBuilds     Build[] @relation("boots")
+  chestBuilds     Build[] @relation("chest")
+  helmetBuilds    Build[] @relation("helmet")
+  leftHandBuilds  Build[] @relation("leftHand")
+  backpackBuilds  Build[] @relation("backpack")
+  rightHandBuilds Build[] @relation("rightHand")
+  accessoryBuilds Build[] @relation("accessory")
+  legsBuilds      Build[] @relation("legs")
+  necklaceBuilds  Build[] @relation("necklace")
 
   @@map("equipments")
-}
-
-model Requirement {
-  id   String @id @default(uuid())
-  name String
-
-  // Relations
-  build   Build  @relation(fields: [buildId], references: [id])
-  buildId String @map("build_id")
-
-  @@map("requirements")
-}
-
-model Skill {
-  id   String @id @default(uuid())
-  name String
-
-  // Relations
-  mainBuilds    Build[] @relation("main_skills")
-  supportBuilds Build[] @relation("support_skills")
-
-  @@map("skills")
-}
-
-model CharacterStats {
-  id          String @id @default(uuid())
-  mana        Int
-  level       Int
-  magic       Int
-  hpRegen     Int    @map("hp_regen")
-  mpRegen     Int    @map("mp_regen")
-  health      Int
-  capacity    Int
-  weaponSkill Int    @map("weapon_skill")
-  class       String
-  pvpStatus   String @map("pvp_status")
-
-  // Relations
-  build   Build  @relation(fields: [buildId], references: [id])
-  buildId String @unique @map("build_id")
-
-  @@map("character_stats")
-}
-
-model Strategy {
-  id      String @id @default(uuid())
-  content String
-
-  // Relations
-  build   Build  @relation(fields: [buildId], references: [id])
-  buildId String @map("build_id")
-
-  @@map("strategies")
 }
