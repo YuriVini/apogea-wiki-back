@@ -5,21 +5,12 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
 import { validatorCompiler, serializerCompiler, jsonSchemaTransform, type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { login } from "./routes/auth/login";
+import { authRoutes } from "./routes/auth";
+import { userRoutes } from "./routes/user";
 import { buildsRoutes } from "./routes/builds";
+import { guidesRoutes } from "./routes/guides";
 import { errorHandler } from "./error-handling";
-import { register } from "./routes/auth/register";
-import { profile } from "./routes/user/my-profile";
-import { updateUser } from "./routes/user/user-update";
 import { equipmentsRoutes } from "./routes/equipments";
-import { listGuides } from "./routes/guides/list-guides";
-import { createGuide } from "./routes/guides/create-guide";
-import { updateGuide } from "./routes/guides/update-guide";
-import { deleteGuide } from "./routes/guides/delete-guide";
-import { resetPassword } from "./routes/auth/password-reset";
-import { updatePassword } from "./routes/user/update-password";
-import { getGuideById } from "./routes/guides/get-guide-by-id";
-import { recoverPassword } from "./routes/auth/password-recover";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -46,20 +37,9 @@ app.register(fastifyJwt, {
 });
 app.register(fastifyCors);
 
-app.register(register);
-app.register(login);
-app.register(resetPassword);
-app.register(recoverPassword);
-app.register(profile);
-app.register(updateUser);
-app.register(updatePassword);
-
-app.register(createGuide);
-app.register(listGuides);
-app.register(getGuideById);
-app.register(updateGuide);
-app.register(deleteGuide);
-
+app.register(authRoutes);
+app.register(userRoutes);
+app.register(guidesRoutes);
 app.register(buildsRoutes);
 app.register(equipmentsRoutes);
 
