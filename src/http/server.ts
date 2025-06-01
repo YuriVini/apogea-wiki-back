@@ -30,6 +30,7 @@ app.register(fastifySwagger, {
     },
   },
 });
+
 app.register(fastifySwaggerUI, {
   routePrefix: "/docs",
 });
@@ -38,16 +39,21 @@ app.register(fastifyJwt, {
 });
 app.register(fastifyCors);
 
-app.register(authRoutes);
-app.register(userRoutes);
-app.register(guidesRoutes);
-app.register(buildsRoutes);
-app.register(equipmentsRoutes);
-app.register(ratingsRoutes);
+app.register(
+  async (fastify) => {
+    fastify.register(authRoutes);
+    fastify.register(userRoutes);
+    fastify.register(guidesRoutes);
+    fastify.register(buildsRoutes);
+    fastify.register(equipmentsRoutes);
+    fastify.register(ratingsRoutes);
+  },
+  { prefix: "/api" }
+);
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3333;
 const host = "0.0.0.0";
 
 app.listen({ port, host }).then(() => {
-  console.log(`Server is running on http://${host}:${port}/`);
+  console.log(`Server is running on http://${host}:${port}/api`);
 });
