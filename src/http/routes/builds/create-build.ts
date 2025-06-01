@@ -2,9 +2,8 @@ import { z } from "zod";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { auth } from "@/http/middlewares/auth";
-
 import { prisma } from "../../../lib/prisma";
+import { auth } from "../../middlewares/auth";
 import { UnauthorizedError } from "../_errors/unauthorized";
 
 export const buildSchemaRequest = z.object({

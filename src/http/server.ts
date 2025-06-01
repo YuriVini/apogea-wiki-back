@@ -46,8 +46,8 @@ app.register(equipmentsRoutes);
 app.register(ratingsRoutes);
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3333;
-// const host = "0.0.0.0";
+const host = "0.0.0.0";
 
-app.listen({ port }).then(() => {
-  console.log(`Server is running on http://localhost:${port}/`);
+app.listen({ port, host }).then(() => {
+  console.log(`Server is running on http://${host}:${port}/`);
 });

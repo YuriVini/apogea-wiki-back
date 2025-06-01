@@ -3,8 +3,8 @@ import { hash } from "bcryptjs";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { prisma } from "@/lib/prisma";
-// import { sendWelcomeEmail } from "@/services/emailService";
+import { prisma } from "../../../lib/prisma";
+// import { sendWelcomeEmail } from "../../../services/emailService";
 
 import { BadRequestError } from "../_errors/bad-request";
 
@@ -31,7 +31,9 @@ export const register = async (app: FastifyInstance) => {
       },
     },
     async (request, reply) => {
+      console.log("register");
       const { name, email, password } = request.body;
+      console.log(name, email, password);
 
       const emailLowerCase = email.toLowerCase();
 

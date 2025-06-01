@@ -4,10 +4,9 @@ import { TokenType } from "@prisma/client";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { prisma } from "@/lib/prisma";
-import { isTokenExpired } from "@/services/isTokenExpired";
-
+import { prisma } from "../../../lib/prisma";
 import { BadRequestError } from "../_errors/bad-request";
+import { isTokenExpired } from "../../../services/isTokenExpired";
 
 export const resetPassword = async (app: FastifyInstance) => {
   app.withTypeProvider<ZodTypeProvider>().post(

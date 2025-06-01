@@ -2,7 +2,7 @@ import z from "zod";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "../../../lib/prisma";
 
 export const listGuides = async (app: FastifyInstance) => {
   app.withTypeProvider<ZodTypeProvider>().get(

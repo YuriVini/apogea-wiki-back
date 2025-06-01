@@ -2,9 +2,8 @@ import { z } from "zod";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { auth } from "@/http/middlewares/auth";
-
 import { prisma } from "../../../lib/prisma";
+import { auth } from "../../middlewares/auth";
 import { buildSchema } from "./list-build-by-user";
 import { buildSchemaRequest } from "./create-build";
 import { NotFoundError } from "../_errors/not-found";

@@ -5,9 +5,8 @@ import { hash, compare } from "bcryptjs";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { prisma } from "@/lib/prisma";
-import { auth } from "@/http/middlewares/auth";
-
+import { prisma } from "../../../lib/prisma";
+import { auth } from "../../middlewares/auth";
 import { BadRequestError } from "../_errors/bad-request";
 import { UnauthorizedError } from "../_errors/unauthorized";
 

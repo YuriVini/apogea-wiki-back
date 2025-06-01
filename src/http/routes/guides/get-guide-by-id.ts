@@ -2,8 +2,7 @@ import z from "zod";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { prisma } from "@/lib/prisma";
-
+import { prisma } from "../../../lib/prisma";
 import { NotFoundError } from "../_errors/not-found";
 
 export const getGuideById = async (app: FastifyInstance) => {

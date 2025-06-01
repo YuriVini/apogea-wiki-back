@@ -4,8 +4,8 @@ import { TokenType } from "@prisma/client";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { prisma } from "@/lib/prisma";
-import { sendResetPasswordEmail } from "@/services/emailService";
+import { prisma } from "../../../lib/prisma";
+import { sendResetPasswordEmail } from "../../../services/emailService";
 
 export const recoverPassword = async (app: FastifyInstance) => {
   app.withTypeProvider<ZodTypeProvider>().post(
