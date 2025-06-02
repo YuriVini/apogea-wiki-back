@@ -146,12 +146,6 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
 };
 
 export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
-  console.log("data", data);
-  console.log("process.env.EMAIL_HOST", process.env.EMAIL_HOST);
-  console.log("process.env.EMAIL_PORT", process.env.EMAIL_PORT);
-  console.log("process.env.EMAIL_FROM", process.env.EMAIL_FROM);
-  console.log("process.env.EMAIL_PASS", process.env.EMAIL_PASS);
-
   const transporter = nodemailer.createTransport({
     secure: true,
     service: "Gmail",

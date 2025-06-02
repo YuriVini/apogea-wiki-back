@@ -31,9 +31,7 @@ export const register = async (app: FastifyInstance) => {
       },
     },
     async (request, reply) => {
-      console.log("register");
       const { name, email, password } = request.body;
-      console.log(name, email, password);
 
       const emailLowerCase = email.toLowerCase();
 

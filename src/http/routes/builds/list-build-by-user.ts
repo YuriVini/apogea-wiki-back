@@ -54,7 +54,6 @@ export async function listBuildsByUser(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      console.log("userId");
       const { userId } = request.params;
 
       const builds = await prisma.build.findMany({
