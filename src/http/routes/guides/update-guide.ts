@@ -3,6 +3,7 @@ import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
+import { auth } from "../../middlewares/auth";
 import { NotFoundError } from "../_errors/not-found";
 
 const updateGuideBodySchema = z.object({
@@ -28,39 +29,76 @@ const updateGuideParamsSchema = z.object({
 });
 
 export async function updateGuide(app: FastifyInstance) {
-  app.withTypeProvider<ZodTypeProvider>().put(
-    "/guides/:id",
-    {
-      schema: {
-        tags: ["Guides"],
-        summary: "Update a guide",
-        body: updateGuideBodySchema,
-        params: updateGuideParamsSchema,
-      },
-    },
-    async (request, reply) => {
-      const { id } = updateGuideParamsSchema.parse(request.params);
-      const { title, steps, footerText, description } = updateGuideBodySchema.parse(request.body);
-
-      const existingGuide = await prisma.guide.findUnique({
-        where: { id },
-      });
-
-      if (!existingGuide) {
-        throw new NotFoundError("Guia não encontrado");
-      }
-
-      const updatedGuide = await prisma.guide.update({
-        where: { id },
-        data: {
-          title,
-          footerText,
-          description,
-          steps: JSON.stringify(steps),
+  app
+    .withTypeProvider<ZodTypeProvider>()
+    .register(auth)
+    .put(
+      "/guides/:id",
+      {
+        schema: {
+          tags: ["Guides"],
+          summary: "Update a guide",
+          body: updateGuideBodySchema,
+          params: updateGuideParamsSchema,
+          response: {
+            404: z.object({
+              message: z.string(),
+            }),
+            401: z.object({
+              message: z.string(),
+            }),
+            200: z.object({
+              id: z.string(),
+              title: z.string(),
+              description: z.string().optional(),
+              footer_text: z.string().optional(),
+              steps: z.array(
+                z.object({
+                  hint: z.string().optional(),
+                  note: z.string().optional(),
+                  title: z.string().optional(),
+                  advice: z.string().optional(),
+                  benefit: z.string().optional(),
+                  image_url: z.string().optional(),
+                  description: z.string().optional(),
+                  items: z.array(z.string()).optional(),
+                })
+              ),
+            }),
+          },
         },
-      });
+      },
+      async (request, reply) => {
+        const { id } = updateGuideParamsSchema.parse(request.params);
+        const { title, steps, footerText, description } = updateGuideBodySchema.parse(request.body);
 
-      return reply.status(200).send(updatedGuide);
-    }
-  );
+        const existingGuide = await prisma.guide.findUnique({
+          where: { id },
+        });
+
+        if (!existingGuide) {
+          throw new NotFoundError("Guia não encontrado");
+        }
+
+        const updatedGuide = await prisma.guide.update({
+          where: { id },
+          data: {
+            title,
+            footerText,
+            description,
+            steps: JSON.stringify(steps),
+          },
+        });
+
+        const updatedGuideFormatted = {
+          id: updatedGuide.id,
+          title: updatedGuide.title,
+          footer_text: updatedGuide.footerText,
+          description: updatedGuide.description,
+          steps: JSON.parse(updatedGuide.steps),
+        };
+
+        return reply.status(200).send(updatedGuideFormatted);
+      }
+    );
 }
