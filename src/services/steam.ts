@@ -30,7 +30,7 @@ export class SteamService {
       const response = await axios.get(STEAM_API_BASE_URL, {
         params: {
           count,
-          format: "json",
+          maxlength: 300,
           appid: this.APOGEIA_APP_ID,
         },
       });

@@ -16,9 +16,10 @@ export async function getSteamNews(app: FastifyInstance) {
           200: z.array(
             z.object({
               id: z.string(),
+              url: z.string(),
               title: z.string(),
+              author: z.string(),
               content: z.string(),
-              image_url: z.string(),
             })
           ),
         },
@@ -29,9 +30,9 @@ export async function getSteamNews(app: FastifyInstance) {
 
       const newsFormatted = news?.appnews?.newsitems?.map((item) => ({
         id: item?.gid,
+        url: item?.url,
         title: item?.title,
         author: item?.author,
-        image_url: item?.url,
         content: item?.contents,
       }));
 
