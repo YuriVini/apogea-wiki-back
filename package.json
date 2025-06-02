@@ -8,7 +8,8 @@
     "prepare": "husky",
     "build": "npx prisma generate && tsc",
     "start": "node dist/http/server.js",
-    "seed:equipments": "tsx src/http/seeds/equipments.ts"
+    "seed:equipments": "tsx src/http/seeds/equipments.ts",
+    "seed:user-admin": "tsx src/http/seeds/user-admin.ts"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -28,6 +29,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.821.0",
     "@fastify/cors": "^9.0.1",
     "@fastify/jwt": "^8.0.1",
     "@fastify/swagger": "^8.15.0",
