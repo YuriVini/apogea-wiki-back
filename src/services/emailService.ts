@@ -35,7 +35,7 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
     host: process.env.EMAIL_HOST,
     port: Number(process.env.EMAIL_PORT),
     auth: {
-      user: process.env.EMAIL_USER,
+      user: process.env.EMAIL_FROM,
       pass: process.env.EMAIL_PASS,
     },
   });
@@ -91,8 +91,8 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
                 margin-top: 20px;
                 margin-bottom: 40px;
                 padding: 12px 20px;
-                background-color: #00A8E1;
-                color: #ffffff;
+                background-color: #c79731;
+                color: #ffffff !important;
                 text-decoration: none;
                 border-radius: 5px;
                 font-weight: bold;
@@ -100,7 +100,7 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
                 text-align: center;
             }
             .cta-button:hover {
-                background-color: #1A2163;
+                background-color: #a77d2c;
             }
             .footer {
                 margin-top: 20px;
@@ -113,7 +113,7 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
     <body>
         <div class="container">
             <div class="header">
-                <img src="/logo.png" alt="Logo Apogea Wiki">
+                <img src="https://drive.usercontent.google.com/download?id=198ugYcHRpO2ZRaVoB9Duaoz9IZYtWtlW" alt="Logo Apogea Wiki">
             </div>
             <div class="content">
                 <h1>${welcomeSubject}, ${data.name}!</h1>
@@ -128,7 +128,7 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
             <div class="footer">
                 <p>${footerMessage}</p>
                 <p><strong>${footerTeam}</strong></p>
-                <p><a href="https://apogea.wiki.com">${footerLinks.split(" | ")[0]}</a> | <a href="mailto:contact@apogea.wiki.com">${footerLinks.split(" | ")[1]}</a></p>
+                <p><a href="https://apogea-wiki.vercel.app">${footerLinks.split(" | ")[0]}</a> | <a href="mailto:apogea.wikis@gmail.com">${footerLinks.split(" | ")[1]}</a></p>
             </div>
         </div>
     </body>
@@ -146,12 +146,19 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
 };
 
 export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
+  console.log("data", data);
+  console.log("process.env.EMAIL_HOST", process.env.EMAIL_HOST);
+  console.log("process.env.EMAIL_PORT", process.env.EMAIL_PORT);
+  console.log("process.env.EMAIL_FROM", process.env.EMAIL_FROM);
+  console.log("process.env.EMAIL_PASS", process.env.EMAIL_PASS);
+
   const transporter = nodemailer.createTransport({
     secure: true,
+    service: "Gmail",
     host: process.env.EMAIL_HOST,
     port: Number(process.env.EMAIL_PORT),
     auth: {
-      user: process.env.EMAIL_USER,
+      user: process.env.EMAIL_FROM,
       pass: process.env.EMAIL_PASS,
     },
   });
@@ -191,6 +198,8 @@ export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
                 max-width: 250px;
             }
             .content {
+                text-align: center;
+                align-items: center;
                 color: #333333;
                 line-height: 1.6;
             }
@@ -209,8 +218,8 @@ export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
                 margin-top: 20px;
                 margin-bottom: 40px;
                 padding: 12px 20px;
-                background-color: #00A8E1;
-                color: #ffffff;
+                background-color: #c79731;
+                color: #ffffff !important;
                 text-decoration: none;
                 border-radius: 5px;
                 font-weight: bold;
@@ -218,7 +227,7 @@ export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
                 text-align: center;
             }
             .cta-button:hover {
-                background-color: #1A2163;
+                background-color: #a77d2c;
             }
             .footer {
                 margin-top: 20px;
@@ -231,7 +240,7 @@ export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
     <body>
         <div class="container">
             <div class="header">
-                <img src="/logo.png" alt="Logo Apogea Wiki">
+                <img src="https://drive.usercontent.google.com/download?id=198ugYcHRpO2ZRaVoB9Duaoz9IZYtWtlW" alt="Logo Apogea Wiki">
             </div>
             <div class="content">
                 <h1>${resetPasswordSubject}, ${data.name}!</h1>
@@ -242,7 +251,7 @@ export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
             <div class="footer">
                 <p>${footerMessage}</p>
                 <p><strong>${footerTeam}</strong></p>
-                <p><a href="https://apogea.wiki.com">${footerLinks.split(" | ")[0]}</a> | <a href="mailto:contact@apogea.wiki.com">${footerLinks.split(" | ")[1]}</a></p>
+                <p><a href="https://apogea-wiki.vercel.app">${footerLinks.split(" | ")[0]}</a> | <a href="mailto:apogea.wikis@gmail.com">${footerLinks.split(" | ")[1]}</a></p>
             </div>
         </div>
     </body>
