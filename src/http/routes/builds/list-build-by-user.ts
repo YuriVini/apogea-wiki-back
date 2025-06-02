@@ -11,6 +11,7 @@ export const buildSchema = z.object({
   updatedAt: z.date(),
   overview: z.string(),
   id: z.string().uuid(),
+  userId: z.string().uuid(),
   strategy: z.array(z.string()),
   characterClass: z.enum(["Knight", "Mage", "Squire", "Rogue"]),
   characterStats: z.object({
@@ -41,16 +42,20 @@ export const buildSchemaArrayResponse = z.array(buildSchema);
 
 export async function listBuildsByUser(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().get(
-    "/builds/user",
+    "/builds/user/:userId",
     {
       schema: {
         tags: ["builds"],
         summary: "List builds by current user",
         response: { 500: z.null(), 200: z.array(buildSchema) },
+        params: z.object({
+          userId: z.string().uuid(),
+        }),
       },
     },
     async (request, reply) => {
-      const userId = await request.getCurrentUserId();
+      console.log("userId");
+      const { userId } = request.params;
 
       const builds = await prisma.build.findMany({
         where: {
@@ -60,8 +65,8 @@ export async function listBuildsByUser(app: FastifyInstance) {
           createdAt: "desc",
         },
         include: {
-          ring: true,
           legs: true,
+          ring: true,
           boots: true,
           chest: true,
           helmet: true,
@@ -77,6 +82,7 @@ export async function listBuildsByUser(app: FastifyInstance) {
         return {
           id: build.id,
           title: build.title,
+          userId: build.userId,
           overview: build.overview,
           createdAt: build.createdAt,
           updatedAt: build.updatedAt,
@@ -98,7 +104,7 @@ export async function listBuildsByUser(app: FastifyInstance) {
         };
       });
 
-      return reply.send(buildsFormatted || []);
+      return reply.send(buildsFormatted);
     }
   );
 }

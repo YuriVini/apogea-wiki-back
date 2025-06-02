@@ -89,6 +89,7 @@ export async function updateBuild(app: FastifyInstance) {
         const buildsFormatted = {
           id: updatedBuild?.id,
           title: updatedBuild?.title,
+          userId: updatedBuild?.userId,
           overview: updatedBuild?.overview,
           createdAt: updatedBuild?.createdAt,
           updatedAt: updatedBuild?.updatedAt,

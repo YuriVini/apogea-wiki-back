@@ -32,7 +32,6 @@ export async function getBuildById(app: FastifyInstance) {
         include: {
           legs: true,
           ring: true,
-          user: true,
           boots: true,
           chest: true,
           helmet: true,
@@ -51,6 +50,7 @@ export async function getBuildById(app: FastifyInstance) {
       const buildsFormatted: z.infer<typeof buildSchema> = {
         id: build?.id,
         title: build?.title,
+        userId: build?.userId,
         overview: build?.overview,
         createdAt: build?.createdAt,
         updatedAt: build?.updatedAt,
