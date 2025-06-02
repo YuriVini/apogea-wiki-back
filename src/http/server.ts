@@ -7,6 +7,7 @@ import { validatorCompiler, serializerCompiler, jsonSchemaTransform, type ZodTyp
 
 import { authRoutes } from "./routes/auth";
 import { userRoutes } from "./routes/user";
+import { newsRoutes } from "./routes/news";
 import { buildsRoutes } from "./routes/builds";
 import { guidesRoutes } from "./routes/guides";
 import { errorHandler } from "./error-handling";
@@ -47,6 +48,7 @@ app.register(
     fastify.register(buildsRoutes);
     fastify.register(equipmentsRoutes);
     fastify.register(ratingsRoutes);
+    fastify.register(newsRoutes);
   },
   { prefix: "/api" }
 );
