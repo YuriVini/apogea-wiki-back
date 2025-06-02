@@ -4,10 +4,6 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { SteamService } from "../../../services/steam";
 
-const getSteamNewsQuerySchema = z.object({
-  count: z.coerce.number().min(1).max(50).default(10),
-});
-
 export async function getSteamNews(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().get(
     "/news",
@@ -15,7 +11,6 @@ export async function getSteamNews(app: FastifyInstance) {
       schema: {
         tags: ["News"],
         summary: "Get Steam news",
-        querystring: getSteamNewsQuerySchema,
         description: "Get the latest news from the Apogea Steam page",
         response: {
           200: z.array(
@@ -30,18 +25,17 @@ export async function getSteamNews(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const { count } = getSteamNewsQuerySchema.parse(request.query);
+      const news = await SteamService.getNews(10);
 
-      const news = await SteamService.getNews(count);
+      const newsFormatted = news?.appnews?.newsitems?.map((item) => ({
+        id: item?.gid,
+        title: item?.title,
+        author: item?.author,
+        image_url: item?.url,
+        content: item?.contents,
+      }));
 
-      return reply.status(200).send(
-        news.appnews.newsitems.map((item) => ({
-          id: item.gid,
-          title: item.title,
-          image_url: item.url,
-          content: item.contents,
-        }))
-      );
+      return reply.status(200).send(newsFormatted);
     }
   );
 }
