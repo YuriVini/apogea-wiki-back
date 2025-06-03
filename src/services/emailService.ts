@@ -1,6 +1,16 @@
 /* eslint-disable max-len */
 import nodemailer from "nodemailer";
 
+// RESEND TOKEN => re_KmHqijob_2JAaGan7aLfp7qU5g6DjTTWm
+// const resend = new Resend("re_KmHqijob_2JAaGan7aLfp7qU5g6DjTTWm");
+
+// resend.emails.send({
+//   subject: "Hello World",
+//   to: "apogea.wikis@gmail.com",
+//   from: "onboarding@resend.dev",
+//   html: "<p>Congrats on sending your <strong>first email</strong>!</p>",
+// });
+
 interface WelcomeEmailData {
   name: string;
   email: string;
@@ -145,19 +155,50 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
   await transporter.sendMail(mailOptions);
 };
 
-export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
-  const transporter = nodemailer.createTransport({
-    secure: true,
-    service: "Gmail",
-    host: process.env.EMAIL_HOST,
-    port: Number(process.env.EMAIL_PORT),
+const auth = {
+  gmail: {
+    port: 465,
+    host: "smtp.gmail.com",
     auth: {
       user: process.env.EMAIL_FROM,
       pass: process.env.EMAIL_PASS,
     },
+  },
+  hotmail: {
+    port: 587,
+    host: "smtp-mail.outlook.com",
+    auth: {
+      user: process.env.EMAIL_OUTLOOK_FROM,
+      pass: process.env.EMAIL_OUTLOOK_PASS,
+    },
+  },
+  outlook: {
+    port: 143,
+    host: "smtp-mail.outlook.com",
+    auth: {
+      user: process.env.EMAIL_OUTLOOK_FROM,
+      pass: process.env.EMAIL_OUTLOOK_PASS,
+    },
+  },
+};
+
+export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
+  const provider = data?.email?.split("@")[1]?.split(".")[0] ?? "gmail";
+
+  console.log("provider", provider);
+  console.log("host", auth[provider as keyof typeof auth]);
+
+  const transporter = nodemailer.createTransport({
+    secure: false,
+    tls: {
+      ciphers: "SSLv3",
+    },
+    port: auth[provider as keyof typeof auth].port,
+    host: auth[provider as keyof typeof auth].host,
+    auth: auth[provider as keyof typeof auth].auth,
   });
 
-  const resetLink = `https://apogea.wiki.com/reset-password?token=${data.token}`;
+  const resetLink = `https://apogea-wiki.vercel.app/reset-password?token=${data.token}`;
 
   const { buttonText, footerTeam, footerLinks, footerMessage, warningMessage, resetPasswordSubject, resetPasswordMessage } = translations;
 
@@ -254,10 +295,15 @@ export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
 
   const mailOptions = {
     to: data.email,
+    text: "Hello world!",
     html: resetEmailTemplate,
     subject: resetPasswordSubject,
     from: `"Apogea Wiki" <${process.env.EMAIL_FROM}>`,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.log("error", error);
+  }
 };
