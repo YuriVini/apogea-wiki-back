@@ -24,6 +24,7 @@ export const profile = async (app: FastifyInstance) => {
               message: z.string(),
             }),
             200: z.object({
+              id: z.string(),
               name: z.string(),
               created_at: z.date(),
               updated_at: z.date(),
@@ -55,6 +56,7 @@ export const profile = async (app: FastifyInstance) => {
         }
 
         return reply.status(200).send({
+          id: user.id,
           name: user.name,
           role: user.role,
           email: user.email,
