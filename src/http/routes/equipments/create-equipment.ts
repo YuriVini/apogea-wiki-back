@@ -7,7 +7,6 @@ import { prisma } from "../../../lib/prisma";
 const createEquipmentBodySchema = z.object({
   name: z.string(),
   type: z.string(),
-  slot: z.string(),
   category: z.string(),
   imageUrl: z.string(),
   size: z.string().nullable().optional(),
@@ -42,7 +41,7 @@ export async function createEquipment(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const data = createEquipmentBodySchema.parse(request.body);
+      const data = request.body;
 
       const equipment = await prisma.equipment.create({
         data,
