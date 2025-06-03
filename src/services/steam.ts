@@ -25,12 +25,12 @@ interface SteamNewsResponse {
 export class SteamService {
   private static readonly APOGEIA_APP_ID = 2796220;
 
-  static async getNews(count: number = 10): Promise<SteamNewsResponse> {
+  static async getNews(maxLength: number, count: number = 10): Promise<SteamNewsResponse> {
     try {
       const response = await axios.get(STEAM_API_BASE_URL, {
         params: {
           count,
-          maxlength: 100,
+          maxlength: maxLength,
           appid: this.APOGEIA_APP_ID,
         },
       });

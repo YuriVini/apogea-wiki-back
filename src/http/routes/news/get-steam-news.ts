@@ -12,6 +12,9 @@ export async function getSteamNews(app: FastifyInstance) {
         tags: ["News"],
         summary: "Get Steam news",
         description: "Get the latest news from the Apogea Steam page",
+        querystring: z.object({
+          maxLength: z.string().optional(),
+        }),
         response: {
           200: z.array(
             z.object({
@@ -26,7 +29,8 @@ export async function getSteamNews(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const news = await SteamService.getNews(10);
+      const { maxLength } = request.query;
+      const news = await SteamService.getNews(parseInt(maxLength ?? "100"));
 
       const newsFormatted = news?.appnews?.newsitems?.map((item) => ({
         id: item?.gid,
