@@ -3,6 +3,7 @@ import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
+import { auth } from "../../middlewares/auth";
 
 const updateEquipmentBodySchema = z.object({
   name: z.string().optional(),
@@ -24,47 +25,50 @@ const updateEquipmentBodySchema = z.object({
 });
 
 export async function updateEquipment(app: FastifyInstance) {
-  app.withTypeProvider<ZodTypeProvider>().put(
-    "/equipments/:id",
-    {
-      schema: {
-        tags: ["equipments"],
-        summary: "Update an equipment",
-        body: updateEquipmentBodySchema,
-        params: z.object({
-          id: z.string().uuid(),
-        }),
-        response: {
-          204: z.null(),
-          400: z.object({
-            message: z.string(),
+  app
+    .withTypeProvider<ZodTypeProvider>()
+    .register(auth)
+    .put(
+      "/equipments/:id",
+      {
+        schema: {
+          tags: ["equipments"],
+          summary: "Update an equipment",
+          body: updateEquipmentBodySchema,
+          params: z.object({
+            id: z.string().uuid(),
           }),
-          404: z.object({
-            message: z.string(),
-          }),
+          response: {
+            204: z.null(),
+            400: z.object({
+              message: z.string(),
+            }),
+            404: z.object({
+              message: z.string(),
+            }),
+          },
         },
       },
-    },
-    async (request, reply) => {
-      const { id } = request.params;
-      const data = updateEquipmentBodySchema.parse(request.body);
+      async (request, reply) => {
+        const { id } = request.params;
+        const data = updateEquipmentBodySchema.parse(request.body);
 
-      const equipment = await prisma.equipment.findUnique({
-        where: { id },
-      });
-
-      if (!equipment) {
-        return reply.status(404).send({
-          message: "Equipment not found",
+        const equipment = await prisma.equipment.findUnique({
+          where: { id },
         });
+
+        if (!equipment) {
+          return reply.status(404).send({
+            message: "Equipment not found",
+          });
+        }
+
+        await prisma.equipment.update({
+          data,
+          where: { id },
+        });
+
+        return reply.status(204).send();
       }
-
-      await prisma.equipment.update({
-        data,
-        where: { id },
-      });
-
-      return reply.status(204).send();
-    }
-  );
+    );
 }

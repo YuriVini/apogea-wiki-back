@@ -3,6 +3,7 @@ import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
+import { auth } from "../../middlewares/auth";
 
 const createEquipmentBodySchema = z.object({
   name: z.string(),
@@ -23,33 +24,36 @@ const createEquipmentBodySchema = z.object({
 });
 
 export async function createEquipment(app: FastifyInstance) {
-  app.withTypeProvider<ZodTypeProvider>().post(
-    "/equipments",
-    {
-      schema: {
-        tags: ["equipments"],
-        body: createEquipmentBodySchema,
-        summary: "Create a new equipment",
-        response: {
-          400: z.object({
-            message: z.string(),
-          }),
-          201: z.object({
-            id: z.string().uuid(),
-          }),
+  app
+    .withTypeProvider<ZodTypeProvider>()
+    .register(auth)
+    .post(
+      "/equipments",
+      {
+        schema: {
+          tags: ["equipments"],
+          body: createEquipmentBodySchema,
+          summary: "Create a new equipment",
+          response: {
+            400: z.object({
+              message: z.string(),
+            }),
+            201: z.object({
+              id: z.string().uuid(),
+            }),
+          },
         },
       },
-    },
-    async (request, reply) => {
-      const data = request.body;
+      async (request, reply) => {
+        const data = request.body;
 
-      const equipment = await prisma.equipment.create({
-        data,
-      });
+        const equipment = await prisma.equipment.create({
+          data,
+        });
 
-      return reply.status(201).send({
-        id: equipment.id,
-      });
-    }
-  );
+        return reply.status(201).send({
+          id: equipment.id,
+        });
+      }
+    );
 }
