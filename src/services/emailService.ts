@@ -1,16 +1,6 @@
 /* eslint-disable max-len */
 import nodemailer from "nodemailer";
 
-// RESEND TOKEN => re_KmHqijob_2JAaGan7aLfp7qU5g6DjTTWm
-// const resend = new Resend("re_KmHqijob_2JAaGan7aLfp7qU5g6DjTTWm");
-
-// resend.emails.send({
-//   subject: "Hello World",
-//   to: "apogea.wikis@gmail.com",
-//   from: "onboarding@resend.dev",
-//   html: "<p>Congrats on sending your <strong>first email</strong>!</p>",
-// });
-
 interface WelcomeEmailData {
   name: string;
   email: string;
@@ -169,15 +159,15 @@ const auth = {
     host: "smtp-mail.outlook.com",
     auth: {
       user: process.env.EMAIL_OUTLOOK_FROM,
-      pass: process.env.EMAIL_OUTLOOK_PASS,
+      pass: process.env.EMAIL_OUTLOOK_PASS_CODE,
     },
   },
   outlook: {
-    port: 143,
+    port: 587,
     host: "smtp-mail.outlook.com",
     auth: {
       user: process.env.EMAIL_OUTLOOK_FROM,
-      pass: process.env.EMAIL_OUTLOOK_PASS,
+      pass: process.env.EMAIL_OUTLOOK_PASS_CODE,
     },
   },
 };
@@ -185,17 +175,17 @@ const auth = {
 export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
   const provider = data?.email?.split("@")[1]?.split(".")[0] ?? "gmail";
 
-  console.log("provider", provider);
-  console.log("host", auth[provider as keyof typeof auth]);
-
   const transporter = nodemailer.createTransport({
-    secure: false,
-    tls: {
-      ciphers: "SSLv3",
-    },
+    secure: provider === "gmail",
     port: auth[provider as keyof typeof auth].port,
     host: auth[provider as keyof typeof auth].host,
     auth: auth[provider as keyof typeof auth].auth,
+    tls:
+      provider !== "gmail"
+        ? {
+            ciphers: "SSLv3",
+          }
+        : undefined,
   });
 
   const resetLink = `https://apogea-wiki.vercel.app/reset-password?token=${data.token}`;
