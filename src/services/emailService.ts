@@ -1,5 +1,10 @@
+import { Resend } from "resend";
 /* eslint-disable max-len */
 import nodemailer from "nodemailer";
+
+const resendApiKey = process.env.RESEND_API_KEY;
+
+const resend = new Resend(resendApiKey);
 
 interface WelcomeEmailData {
   name: string;
@@ -122,13 +127,13 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
                 <p><strong>${passwordLabel}:</strong> ${data.password}</p>
                 <p><strong>${warningMessage}</strong></p>
                 <div class="button-container">
-                    <a href="https://apogea.wiki.com/sign-in" class="cta-button">${buttonText}</a>
+                    <a href="https://apogeawiki.fun/sign-in" class="cta-button">${buttonText}</a>
                 </div>
             </div>
             <div class="footer">
                 <p>${footerMessage}</p>
                 <p><strong>${footerTeam}</strong></p>
-                <p><a href="https://apogea-wiki.vercel.app">${footerLinks.split(" | ")[0]}</a> | <a href="mailto:apogea.wikis@gmail.com">${footerLinks.split(" | ")[1]}</a></p>
+                <p><a href="https://apogeawiki.fun">${footerLinks.split(" | ")[0]}</a> | <a href="mailto:apogea.wikis@gmail.com">${footerLinks.split(" | ")[1]}</a></p>
             </div>
         </div>
     </body>
@@ -145,50 +150,8 @@ export const sendWelcomeEmail = async (data: WelcomeEmailData) => {
   await transporter.sendMail(mailOptions);
 };
 
-const auth = {
-  gmail: {
-    port: 465,
-    host: "smtp.gmail.com",
-    auth: {
-      user: process.env.EMAIL_FROM,
-      pass: process.env.EMAIL_PASS,
-    },
-  },
-  hotmail: {
-    port: 587,
-    host: "smtp-mail.outlook.com",
-    auth: {
-      user: process.env.EMAIL_OUTLOOK_FROM,
-      pass: process.env.EMAIL_OUTLOOK_PASS_CODE,
-    },
-  },
-  outlook: {
-    port: 587,
-    host: "smtp-mail.outlook.com",
-    auth: {
-      user: process.env.EMAIL_OUTLOOK_FROM,
-      pass: process.env.EMAIL_OUTLOOK_PASS_CODE,
-    },
-  },
-};
-
 export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
-  const provider = data?.email?.split("@")[1]?.split(".")[0] ?? "gmail";
-
-  const transporter = nodemailer.createTransport({
-    secure: provider === "gmail",
-    port: auth[provider as keyof typeof auth].port,
-    host: auth[provider as keyof typeof auth].host,
-    auth: auth[provider as keyof typeof auth].auth,
-    tls:
-      provider !== "gmail"
-        ? {
-            ciphers: "SSLv3",
-          }
-        : undefined,
-  });
-
-  const resetLink = `https://apogea-wiki.vercel.app/reset-password?token=${data.token}`;
+  const resetLink = `https://apogeawiki.fun/reset-password?token=${data.token}`;
 
   const { buttonText, footerTeam, footerLinks, footerMessage, warningMessage, resetPasswordSubject, resetPasswordMessage } = translations;
 
@@ -276,24 +239,17 @@ export const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
             <div class="footer">
                 <p>${footerMessage}</p>
                 <p><strong>${footerTeam}</strong></p>
-                <p><a href="https://apogea-wiki.vercel.app">${footerLinks.split(" | ")[0]}</a> | <a href="mailto:apogea.wikis@gmail.com">${footerLinks.split(" | ")[1]}</a></p>
+                <p><a href="https://apogeawiki.fun">${footerLinks.split(" | ")[0]}</a> | <a href="mailto:apogea.wikis@gmail.com">${footerLinks.split(" | ")[1]}</a></p>
             </div>
         </div>
     </body>
     </html>
   `;
 
-  const mailOptions = {
+  await resend.emails.send({
     to: data.email,
-    text: "Hello world!",
     html: resetEmailTemplate,
     subject: resetPasswordSubject,
     from: `"Apogea Wiki" <${process.env.EMAIL_FROM}>`,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.log("error", error);
-  }
+  });
 };
