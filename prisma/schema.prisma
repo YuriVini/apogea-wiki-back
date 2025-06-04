@@ -126,6 +126,7 @@ model Equipment {
   defense     String? @map("defense")
   attributes  String? @map("attributes")
   weight      String? @map("weight")
+  armor       String? @default("0") @map("armor")
   dropBy      String? @map("drop_by")
   rarity      String? @map("rarity")
   sellTo      String? @map("sell_to")
