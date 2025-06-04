@@ -2,8 +2,11 @@ import { z } from "zod";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
+import { PREFIX_URL } from "@/services/awsServices";
+
 import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
+import { type stepsSchema } from "./get-guide-by-id";
 import { NotFoundError } from "../_errors/not-found";
 import { UnauthorizedError } from "../_errors/unauthorized";
 
@@ -86,6 +89,18 @@ export async function updateGuide(app: FastifyInstance) {
           where: { id: userId },
         });
 
+        const stepsWithImageUrls = await Promise.all(
+          steps.map(async (step: z.infer<typeof stepsSchema>) => {
+            if (step.image_url) {
+              return {
+                ...step,
+                image_url: `${PREFIX_URL}/${step.image_url}`,
+              };
+            }
+            return step;
+          })
+        );
+
         if (existingGuide.userId === userId || user?.role === "ADMIN") {
           const updatedGuide = await prisma.guide.update({
             where: { id },
@@ -93,16 +108,16 @@ export async function updateGuide(app: FastifyInstance) {
               title,
               footerText,
               description,
-              steps: JSON.stringify(steps),
+              steps: JSON.stringify(stepsWithImageUrls),
             },
           });
 
           const updatedGuideFormatted = {
             id: updatedGuide.id,
             title: updatedGuide.title,
+            steps: stepsWithImageUrls,
             footer_text: updatedGuide.footerText,
             description: updatedGuide.description,
-            steps: JSON.parse(updatedGuide.steps),
           };
 
           return reply.status(200).send(updatedGuideFormatted);
