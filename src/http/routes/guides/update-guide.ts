@@ -6,8 +6,8 @@ import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
 import { type stepsSchema } from "./get-guide-by-id";
 import { NotFoundError } from "../_errors/not-found";
-import { PREFIX_URL } from "../../../services/awsServices";
 import { UnauthorizedError } from "../_errors/unauthorized";
+import { PREFIX_URL, deleteFileHandler } from "../../../services/awsServices";
 
 const updateGuideBodySchema = z.object({
   title: z.string().optional(),
@@ -88,19 +88,44 @@ export async function updateGuide(app: FastifyInstance) {
           where: { id: userId },
         });
 
-        const stepsWithImageUrls = await Promise.all(
-          steps.map(async (step: z.infer<typeof stepsSchema>) => {
-            if (step.image_url) {
-              return {
-                ...step,
-                image_url: `${PREFIX_URL}/${step.image_url}`,
-              };
-            }
-            return step;
-          })
-        );
-
         if (existingGuide.userId === userId || user?.role === "ADMIN") {
+          const oldSteps = JSON.parse(existingGuide.steps) as Array<z.infer<typeof stepsSchema>>;
+
+          const imagesToDelete = oldSteps
+            .filter((oldStep) => {
+              const newStep = steps.find((s) => s.title === oldStep.title);
+              return oldStep.image_url && (!newStep?.image_url || newStep.image_url !== oldStep.image_url);
+            })
+            .map((step) => {
+              if (step.image_url) {
+                return step.image_url.split(`${PREFIX_URL}/`)[1];
+              }
+              return null;
+            })
+            .filter((key): key is string => key !== null);
+
+          await Promise.all(
+            imagesToDelete.map(async (key) => {
+              try {
+                await deleteFileHandler(key);
+              } catch (error) {
+                console.error(`Failed to delete image ${key}:`, error);
+              }
+            })
+          );
+
+          const stepsWithImageUrls = await Promise.all(
+            steps.map(async (step: z.infer<typeof stepsSchema>) => {
+              if (step.image_url) {
+                return {
+                  ...step,
+                  image_url: `${PREFIX_URL}/${step.image_url}`,
+                };
+              }
+              return step;
+            })
+          );
+
           const updatedGuide = await prisma.guide.update({
             where: { id },
             data: {

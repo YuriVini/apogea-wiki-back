@@ -1,5 +1,5 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 import { s3Client } from "../lib/aws";
 import { BadRequestError } from "../http/routes/_errors/bad-request";
@@ -20,5 +20,18 @@ export const uploadSignedUrlHandler = async (fileName: string) => {
     return { signedUrl };
   } catch (error) {
     throw new BadRequestError("Failed to generate presigned URL");
+  }
+};
+
+export const deleteFileHandler = async (key: string) => {
+  try {
+    const command = new DeleteObjectCommand({
+      Key: key,
+      Bucket: process.env.AWS_BUCKET_NAME,
+    });
+
+    await s3Client.send(command);
+  } catch (error) {
+    throw new BadRequestError("Failed to delete file", { cause: error });
   }
 };

@@ -4,8 +4,10 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
+import { type stepsSchema } from "./get-guide-by-id";
 import { NotFoundError } from "../_errors/not-found";
 import { UnauthorizedError } from "../_errors/unauthorized";
+import { PREFIX_URL, deleteFileHandler } from "../../../services/awsServices";
 
 export const deleteGuide = async (app: FastifyInstance) => {
   app
@@ -55,6 +57,16 @@ export const deleteGuide = async (app: FastifyInstance) => {
         }
 
         if (guide.userId === userId || user?.role === "ADMIN") {
+          const steps = JSON.parse(guide.steps) as Array<z.infer<typeof stepsSchema>>;
+          await Promise.all(
+            steps?.map(async (step) => {
+              if (step.image_url) {
+                const key = step.image_url.split(`${PREFIX_URL}/`)[1];
+                await deleteFileHandler(key);
+              }
+            })
+          );
+
           await prisma.guide.delete({
             where: { id: guideId },
           });
