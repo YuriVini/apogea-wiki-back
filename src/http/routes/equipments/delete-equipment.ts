@@ -4,6 +4,7 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
+import { UnauthorizedError } from "../_errors/unauthorized";
 
 export async function deleteEquipment(app: FastifyInstance) {
   app
@@ -28,6 +29,16 @@ export async function deleteEquipment(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { id } = request.params;
+
+        const userId = await request.getCurrentUserId();
+
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+        });
+
+        if (!userId || user?.role !== "ADMIN") {
+          throw new UnauthorizedError("Você não tem permissão para deletar um equipamento");
+        }
 
         const equipment = await prisma.equipment.findUnique({
           where: { id },

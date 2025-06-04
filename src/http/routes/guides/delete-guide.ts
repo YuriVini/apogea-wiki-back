@@ -42,6 +42,10 @@ export const deleteGuide = async (app: FastifyInstance) => {
           throw new UnauthorizedError("Você não está autorizado a deletar um guia");
         }
 
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+        });
+
         const guide = await prisma.guide.findUnique({
           where: { id: guideId },
         });
@@ -50,15 +54,15 @@ export const deleteGuide = async (app: FastifyInstance) => {
           throw new NotFoundError("Guia não encontrado");
         }
 
-        if (guide.userId !== userId) {
-          throw new UnauthorizedError("Você não tem permissão para deletar este guia");
+        if (guide.userId === userId || user?.role === "ADMIN") {
+          await prisma.guide.delete({
+            where: { id: guideId },
+          });
+
+          return reply.status(204).send();
         }
 
-        await prisma.guide.delete({
-          where: { id: guideId },
-        });
-
-        return reply.status(204).send();
+        throw new UnauthorizedError("Você não tem permissão para deletar este guia");
       }
     );
 };

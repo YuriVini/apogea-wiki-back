@@ -44,15 +44,19 @@ export async function deleteBuild(app: FastifyInstance) {
           throw new NotFoundError("Build não encontrada");
         }
 
-        if (build.userId !== userId) {
-          throw new UnauthorizedError("Não autorizado");
-        }
-
-        await prisma.build.delete({
-          where: { id },
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
         });
 
-        return reply.status(204).send();
+        if (build.userId === userId || user?.role === "ADMIN") {
+          await prisma.build.delete({
+            where: { id },
+          });
+
+          return reply.status(204).send();
+        }
+
+        throw new UnauthorizedError("Não autorizado");
       }
     );
 }

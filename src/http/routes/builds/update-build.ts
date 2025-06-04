@@ -48,69 +48,73 @@ export async function updateBuild(app: FastifyInstance) {
           throw new NotFoundError("Build não encontrada");
         }
 
-        if (build.userId !== userId) {
-          throw new UnauthorizedError("Não autorizado");
-        }
-
-        const updatedBuild = await prisma.build.update({
-          where: { id },
-          include: {
-            ring: true,
-            legs: true,
-            boots: true,
-            chest: true,
-            helmet: true,
-            leftHand: true,
-            backpack: true,
-            necklace: true,
-            rightHand: true,
-            accessory: true,
-          },
-          data: {
-            ...build,
-            title: body.title,
-            updatedAt: new Date(),
-            overview: body.overview,
-            ringId: body.equipment.ring,
-            legsId: body.equipment.legs,
-            bootsId: body.equipment.boots,
-            chestId: body.equipment.chest,
-            helmetId: body.equipment.helmet,
-            necklaceId: body.equipment.necklace,
-            leftHandId: body.equipment.leftHand,
-            backpackId: body.equipment.backpack,
-            rightHandId: body.equipment.rightHand,
-            accessoryId: body.equipment.accessory,
-            strategy: body?.strategy?.join("/-/") ?? "",
-            characterStats: JSON.stringify(body.characterStats),
-          },
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
         });
 
-        const buildsFormatted = {
-          id: updatedBuild?.id,
-          title: updatedBuild?.title,
-          userId: updatedBuild?.userId,
-          overview: updatedBuild?.overview,
-          createdAt: updatedBuild?.createdAt,
-          updatedAt: updatedBuild?.updatedAt,
-          characterClass: updatedBuild?.characterClass,
-          strategy: updatedBuild?.strategy.split("/-/"),
-          characterStats: JSON.parse(updatedBuild?.characterStats),
-          equipment: {
-            ring: updatedBuild?.ring,
-            legs: updatedBuild?.legs,
-            boots: updatedBuild?.boots,
-            chest: updatedBuild?.chest,
-            helmet: updatedBuild?.helmet,
-            leftHand: updatedBuild?.leftHand,
-            backpack: updatedBuild?.backpack,
-            necklace: updatedBuild?.necklace,
-            rightHand: updatedBuild?.rightHand,
-            accessory: updatedBuild?.accessory,
-          },
-        };
+        if (build.userId === userId || user?.role === "ADMIN") {
+          const updatedBuild = await prisma.build.update({
+            where: { id },
+            include: {
+              ring: true,
+              legs: true,
+              boots: true,
+              chest: true,
+              helmet: true,
+              leftHand: true,
+              backpack: true,
+              necklace: true,
+              rightHand: true,
+              accessory: true,
+            },
+            data: {
+              ...build,
+              title: body.title,
+              updatedAt: new Date(),
+              overview: body.overview,
+              ringId: body.equipment.ring,
+              legsId: body.equipment.legs,
+              bootsId: body.equipment.boots,
+              chestId: body.equipment.chest,
+              helmetId: body.equipment.helmet,
+              necklaceId: body.equipment.necklace,
+              leftHandId: body.equipment.leftHand,
+              backpackId: body.equipment.backpack,
+              rightHandId: body.equipment.rightHand,
+              accessoryId: body.equipment.accessory,
+              strategy: body?.strategy?.join("/-/") ?? "",
+              characterStats: JSON.stringify(body.characterStats),
+            },
+          });
 
-        return reply.send(buildsFormatted);
+          const buildsFormatted = {
+            id: updatedBuild?.id,
+            title: updatedBuild?.title,
+            userId: updatedBuild?.userId,
+            overview: updatedBuild?.overview,
+            createdAt: updatedBuild?.createdAt,
+            updatedAt: updatedBuild?.updatedAt,
+            characterClass: updatedBuild?.characterClass,
+            strategy: updatedBuild?.strategy.split("/-/"),
+            characterStats: JSON.parse(updatedBuild?.characterStats),
+            equipment: {
+              ring: updatedBuild?.ring,
+              legs: updatedBuild?.legs,
+              boots: updatedBuild?.boots,
+              chest: updatedBuild?.chest,
+              helmet: updatedBuild?.helmet,
+              leftHand: updatedBuild?.leftHand,
+              backpack: updatedBuild?.backpack,
+              necklace: updatedBuild?.necklace,
+              rightHand: updatedBuild?.rightHand,
+              accessory: updatedBuild?.accessory,
+            },
+          };
+
+          return reply.send(buildsFormatted);
+        }
+
+        throw new UnauthorizedError("Você não tem permissão para atualizar esta build");
       }
     );
 }

@@ -4,6 +4,7 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
+import { UnauthorizedError } from "../_errors/unauthorized";
 
 const createEquipmentBodySchema = z.object({
   name: z.string(),
@@ -45,6 +46,16 @@ export async function createEquipment(app: FastifyInstance) {
         },
       },
       async (request, reply) => {
+        const userId = await request.getCurrentUserId();
+
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+        });
+
+        if (!userId || user?.role !== "ADMIN") {
+          throw new UnauthorizedError("Você não tem permissão para criar um equipamento");
+        }
+
         const data = request.body;
 
         const equipment = await prisma.equipment.create({

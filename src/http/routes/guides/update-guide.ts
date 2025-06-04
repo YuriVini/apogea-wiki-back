@@ -5,6 +5,7 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
 import { NotFoundError } from "../_errors/not-found";
+import { UnauthorizedError } from "../_errors/unauthorized";
 
 const updateGuideBodySchema = z.object({
   title: z.string().optional(),
@@ -69,6 +70,7 @@ export async function updateGuide(app: FastifyInstance) {
         },
       },
       async (request, reply) => {
+        const userId = await request.getCurrentUserId();
         const { id } = updateGuideParamsSchema.parse(request.params);
         const { title, steps, footerText, description } = updateGuideBodySchema.parse(request.body);
 
@@ -80,25 +82,33 @@ export async function updateGuide(app: FastifyInstance) {
           throw new NotFoundError("Guia não encontrado");
         }
 
-        const updatedGuide = await prisma.guide.update({
-          where: { id },
-          data: {
-            title,
-            footerText,
-            description,
-            steps: JSON.stringify(steps),
-          },
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
         });
 
-        const updatedGuideFormatted = {
-          id: updatedGuide.id,
-          title: updatedGuide.title,
-          footer_text: updatedGuide.footerText,
-          description: updatedGuide.description,
-          steps: JSON.parse(updatedGuide.steps),
-        };
+        if (existingGuide.userId === userId || user?.role === "ADMIN") {
+          const updatedGuide = await prisma.guide.update({
+            where: { id },
+            data: {
+              title,
+              footerText,
+              description,
+              steps: JSON.stringify(steps),
+            },
+          });
 
-        return reply.status(200).send(updatedGuideFormatted);
+          const updatedGuideFormatted = {
+            id: updatedGuide.id,
+            title: updatedGuide.title,
+            footer_text: updatedGuide.footerText,
+            description: updatedGuide.description,
+            steps: JSON.parse(updatedGuide.steps),
+          };
+
+          return reply.status(200).send(updatedGuideFormatted);
+        }
+
+        throw new UnauthorizedError("Você não tem permissão para atualizar este guia");
       }
     );
 }

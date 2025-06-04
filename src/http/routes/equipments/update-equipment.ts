@@ -4,6 +4,8 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
+import { NotFoundError } from "../_errors/not-found";
+import { UnauthorizedError } from "../_errors/unauthorized";
 
 const updateEquipmentBodySchema = z.object({
   name: z.string().optional(),
@@ -51,6 +53,17 @@ export async function updateEquipment(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { id } = request.params;
+
+        const userId = await request.getCurrentUserId();
+
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+        });
+
+        if (!userId || user?.role !== "ADMIN") {
+          throw new UnauthorizedError("Você não tem permissão para atualizar um equipamento");
+        }
+
         const data = updateEquipmentBodySchema.parse(request.body);
 
         const equipment = await prisma.equipment.findUnique({
@@ -58,9 +71,7 @@ export async function updateEquipment(app: FastifyInstance) {
         });
 
         if (!equipment) {
-          return reply.status(404).send({
-            message: "Equipment not found",
-          });
+          throw new NotFoundError("Equipment not found");
         }
 
         await prisma.equipment.update({
