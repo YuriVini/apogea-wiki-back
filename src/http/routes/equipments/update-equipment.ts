@@ -15,6 +15,7 @@ const updateEquipmentBodySchema = z.object({
   imageUrl: z.string().optional(),
   size: z.string().nullable().optional(),
   range: z.string().nullable().optional(),
+  armor: z.string().nullable().optional(),
   damage: z.string().nullable().optional(),
   weight: z.string().nullable().optional(),
   dropBy: z.string().nullable().optional(),

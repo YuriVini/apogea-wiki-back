@@ -11,6 +11,7 @@ export const equipmentSchema = z.object({
   id: z.string().uuid(),
   size: z.string().nullable(),
   range: z.string().nullable(),
+  armor: z.string().nullable(),
   damage: z.string().nullable(),
   weight: z.string().nullable(),
   dropBy: z.string().nullable(),
