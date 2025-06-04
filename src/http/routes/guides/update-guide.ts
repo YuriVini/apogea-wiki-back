@@ -2,12 +2,11 @@ import { z } from "zod";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { PREFIX_URL } from "@/services/awsServices";
-
 import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
 import { type stepsSchema } from "./get-guide-by-id";
 import { NotFoundError } from "../_errors/not-found";
+import { PREFIX_URL } from "../../../services/awsServices";
 import { UnauthorizedError } from "../_errors/unauthorized";
 
 const updateGuideBodySchema = z.object({
