@@ -5,6 +5,7 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
 import { validatorCompiler, serializerCompiler, jsonSchemaTransform, type ZodTypeProvider } from "fastify-type-provider-zod";
 
+import { awsRoutes } from "./routes/aws";
 import { authRoutes } from "./routes/auth";
 import { userRoutes } from "./routes/user";
 import { newsRoutes } from "./routes/news";
@@ -49,6 +50,7 @@ app.register(
     fastify.register(equipmentsRoutes);
     fastify.register(ratingsRoutes);
     fastify.register(newsRoutes);
+    fastify.register(awsRoutes);
   },
   { prefix: "/api" }
 );

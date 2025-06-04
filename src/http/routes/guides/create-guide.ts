@@ -2,8 +2,11 @@ import z from "zod";
 import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
+import { PREFIX_URL } from "@/services/awsServices";
+
 import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
+import { type stepsSchema } from "./get-guide-by-id";
 import { BadRequestError } from "../_errors/bad-request";
 import { UnauthorizedError } from "../_errors/unauthorized";
 
@@ -56,14 +59,26 @@ export const createGuide = async (app: FastifyInstance) => {
           throw new UnauthorizedError("Você não está autorizado a criar um guia");
         }
 
+        const stepsWithImageUrls = await Promise.all(
+          steps.map(async (step: z.infer<typeof stepsSchema>) => {
+            if (step.image_url) {
+              return {
+                ...step,
+                image_url: `${PREFIX_URL}/${step.image_url}`,
+              };
+            }
+            return step;
+          })
+        );
+
         try {
           const guide = await prisma.guide.create({
             data: {
               userId,
               title: title || "",
-              steps: JSON.stringify(steps),
               footerText: footer_text || "",
               description: description || "",
+              steps: JSON.stringify(stepsWithImageUrls),
             },
           });
 

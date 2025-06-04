@@ -3,6 +3,7 @@ import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
+import { guideSchema } from "./get-guide-by-id";
 import { NotFoundError } from "../_errors/not-found";
 
 export const getGuidesByUserId = async (app: FastifyInstance) => {
@@ -16,44 +17,31 @@ export const getGuidesByUserId = async (app: FastifyInstance) => {
           userId: z.string().uuid(),
         }),
         response: {
+          200: z.array(guideSchema),
           404: z.object({
             message: z.string(),
           }),
-          200: z.array(
-            z.object({
-              id: z.string(),
-              title: z.string(),
-              description: z.string().optional(),
-              footer_text: z.string().optional(),
-              steps: z.array(
-                z.object({
-                  hint: z.string().optional(),
-                  note: z.string().optional(),
-                  title: z.string().optional(),
-                  advice: z.string().optional(),
-                  benefit: z.string().optional(),
-                  image_url: z.string().optional(),
-                  description: z.string().optional(),
-                  items: z.array(z.string()).optional(),
-                })
-              ),
-            })
-          ),
         },
       },
     },
     async (request, reply) => {
       const { userId } = request.params;
 
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundError("Usuário não encontrado");
+      }
+
       const guides = await prisma.guide.findMany({
         where: {
           userId,
         },
       });
-
-      if (!guides.length) {
-        throw new NotFoundError("No guides found for this user");
-      }
 
       const formattedGuides = guides.map((guide) => ({
         ...guide,

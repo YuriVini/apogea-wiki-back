@@ -73,7 +73,6 @@ export const updatePassword = async (app: FastifyInstance) => {
 
           return reply.status(200).send({ message: "Senha atualizada com sucesso" });
         } catch (error) {
-          console.error("Erro ao buscar flight issue por ID:", error);
           return reply.status(500).send({ message: "Internal Server Error" });
         }
       }

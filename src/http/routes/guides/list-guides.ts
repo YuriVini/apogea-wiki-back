@@ -3,6 +3,7 @@ import { type FastifyInstance } from "fastify";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
+import { guideSchema } from "./get-guide-by-id";
 
 export const listGuides = async (app: FastifyInstance) => {
   app.withTypeProvider<ZodTypeProvider>().get(
@@ -12,29 +13,7 @@ export const listGuides = async (app: FastifyInstance) => {
         tags: ["guides"],
         summary: "List all guides",
         response: {
-          400: z.object({
-            message: z.string(),
-          }),
-          200: z.array(
-            z.object({
-              id: z.string(),
-              title: z.string(),
-              description: z.string().optional(),
-              footer_text: z.string().optional(),
-              steps: z.array(
-                z.object({
-                  hint: z.string().optional(),
-                  note: z.string().optional(),
-                  title: z.string().optional(),
-                  advice: z.string().optional(),
-                  benefit: z.string().optional(),
-                  image_url: z.string().optional(),
-                  description: z.string().optional(),
-                  items: z.array(z.string()).optional(),
-                })
-              ),
-            })
-          ),
+          200: z.array(guideSchema),
         },
       },
     },
