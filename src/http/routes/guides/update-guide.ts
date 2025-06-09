@@ -128,6 +128,9 @@ export async function updateGuide(app: FastifyInstance) {
 
           const updatedGuide = await prisma.guide.update({
             where: { id },
+            include: {
+              user: true,
+            },
             data: {
               title,
               footerText,
@@ -141,6 +144,7 @@ export async function updateGuide(app: FastifyInstance) {
             title: updatedGuide.title,
             steps: stepsWithImageUrls,
             userId: updatedGuide.userId,
+            author: updatedGuide.user.name,
             footer_text: updatedGuide.footerText,
             description: updatedGuide.description,
           };

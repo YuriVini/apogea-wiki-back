@@ -41,11 +41,15 @@ export const getGuidesByUserId = async (app: FastifyInstance) => {
         where: {
           userId,
         },
+        include: {
+          user: true,
+        },
       });
 
       const formattedGuides = guides.map((guide) => ({
         ...guide,
         userId: guide.userId,
+        author: guide.user.name,
         steps: JSON.parse(guide.steps),
       }));
 

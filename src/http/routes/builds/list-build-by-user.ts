@@ -7,6 +7,7 @@ import { equipmentSchema } from "../equipments/list-equipments";
 
 export const buildSchema = z.object({
   title: z.string(),
+  author: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
   overview: z.string(),
@@ -66,6 +67,7 @@ export async function listBuildsByUser(app: FastifyInstance) {
         include: {
           legs: true,
           ring: true,
+          user: true,
           boots: true,
           chest: true,
           helmet: true,
@@ -82,6 +84,7 @@ export async function listBuildsByUser(app: FastifyInstance) {
           id: build.id,
           title: build.title,
           userId: build.userId,
+          author: build.user.name,
           overview: build.overview,
           createdAt: build.createdAt,
           updatedAt: build.updatedAt,

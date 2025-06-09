@@ -40,6 +40,7 @@ export async function listBuilds(app: FastifyInstance) {
           id: build.id,
           title: build.title,
           userId: build.userId,
+          author: build.user.name,
           overview: build.overview,
           createdAt: build.createdAt,
           updatedAt: build.updatedAt,

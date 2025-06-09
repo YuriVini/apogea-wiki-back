@@ -18,11 +18,16 @@ export const listGuides = async (app: FastifyInstance) => {
       },
     },
     async (_request, reply) => {
-      const guides = await prisma.guide.findMany();
+      const guides = await prisma.guide.findMany({
+        include: {
+          user: true,
+        },
+      });
 
       const formattedGuides = guides.map((guide) => ({
         ...guide,
         userId: guide.userId,
+        author: guide.user.name,
         steps: JSON.parse(guide.steps),
       }));
 

@@ -56,6 +56,7 @@ export async function updateBuild(app: FastifyInstance) {
           const updatedBuild = await prisma.build.update({
             where: { id },
             include: {
+              user: true,
               ring: true,
               legs: true,
               boots: true,
@@ -91,6 +92,7 @@ export async function updateBuild(app: FastifyInstance) {
             id: updatedBuild?.id,
             title: updatedBuild?.title,
             userId: updatedBuild?.userId,
+            author: updatedBuild?.user.name,
             overview: updatedBuild?.overview,
             createdAt: updatedBuild?.createdAt,
             updatedAt: updatedBuild?.updatedAt,

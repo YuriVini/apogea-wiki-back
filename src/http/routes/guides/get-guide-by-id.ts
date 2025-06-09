@@ -20,6 +20,7 @@ export const guideSchema = z.object({
   id: z.string(),
   title: z.string(),
   userId: z.string(),
+  author: z.string(),
   steps: z.array(stepsSchema),
   description: z.string().optional(),
   footer_text: z.string().optional(),
@@ -48,6 +49,9 @@ export const getGuideById = async (app: FastifyInstance) => {
 
       const guide = await prisma.guide.findUnique({
         where: { id },
+        include: {
+          user: true,
+        },
       });
 
       if (!guide) {
@@ -60,6 +64,7 @@ export const getGuideById = async (app: FastifyInstance) => {
         ...guide,
         steps,
         userId: guide.userId,
+        author: guide.user.name,
       });
     }
   );
