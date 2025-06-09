@@ -140,6 +140,7 @@ export async function updateGuide(app: FastifyInstance) {
             id: updatedGuide.id,
             title: updatedGuide.title,
             steps: stepsWithImageUrls,
+            userId: updatedGuide.userId,
             footer_text: updatedGuide.footerText,
             description: updatedGuide.description,
           };

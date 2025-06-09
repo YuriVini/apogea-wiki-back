@@ -22,6 +22,7 @@ export const listGuides = async (app: FastifyInstance) => {
 
       const formattedGuides = guides.map((guide) => ({
         ...guide,
+        userId: guide.userId,
         steps: JSON.parse(guide.steps),
       }));
 

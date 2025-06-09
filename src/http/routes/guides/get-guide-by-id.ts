@@ -19,6 +19,7 @@ export const stepsSchema = z.object({
 export const guideSchema = z.object({
   id: z.string(),
   title: z.string(),
+  userId: z.string(),
   steps: z.array(stepsSchema),
   description: z.string().optional(),
   footer_text: z.string().optional(),
@@ -58,6 +59,7 @@ export const getGuideById = async (app: FastifyInstance) => {
       return reply.status(200).send({
         ...guide,
         steps,
+        userId: guide.userId,
       });
     }
   );
