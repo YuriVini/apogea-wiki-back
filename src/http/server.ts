@@ -14,6 +14,7 @@ import { guidesRoutes } from "./routes/guides";
 import { errorHandler } from "./error-handling";
 import { ratingsRoutes } from "./routes/ratings";
 import { equipmentsRoutes } from "./routes/equipments";
+import { otherItemsRoutes } from "./routes/other-items";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -51,6 +52,7 @@ app.register(
     fastify.register(ratingsRoutes);
     fastify.register(newsRoutes);
     fastify.register(awsRoutes);
+    fastify.register(otherItemsRoutes);
   },
   { prefix: "/api" }
 );

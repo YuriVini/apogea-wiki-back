@@ -168,3 +168,38 @@ model Rating {
   @@index([guideId])
   @@map("ratings")
 }
+
+model OtherItem {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  imageUrl    String?  @map("image_url")
+  weight      String?
+  sellTo      String?  @map("sell_to")
+  dropBy      String?  @map("drop_by")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Monster specific fields
+  hp        String?
+  exp       String?
+  abilities String?
+  loot      String?
+
+  // Book specific fields
+  author   String?
+  location String?
+  notes    String?
+  text     String?
+
+  // Food specific fields
+  buffs        String?
+  satiateTime  String? @map("satiate_time")
+  requirements String?
+
+  // NPC specific fields
+  npcLocation String? @map("npc_location")
+
+  @@map("other_items")
+}

@@ -9,7 +9,8 @@
     "build": "npx prisma generate && tsc",
     "start": "node dist/http/server.js",
     "seed:equipments": "tsx src/http/seeds/equipments.ts",
-    "seed:user-admin": "tsx src/http/seeds/user-admin.ts"
+    "seed:user-admin": "tsx src/http/seeds/user-admin.ts",
+    "seed:other-items": "tsx src/http/seeds/other-items.ts"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
