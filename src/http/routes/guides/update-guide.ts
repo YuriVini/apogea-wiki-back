@@ -47,7 +47,7 @@ const guideSchema = z.object({
 const updateGuideBodySchema = z.object({
   steps: z.array(stepsSchema),
   title: z.string().optional(),
-  footerText: z.string().optional(),
+  footer_text: z.string().optional(),
   description: z.string().optional(),
 });
 
@@ -81,7 +81,7 @@ export async function updateGuide(app: FastifyInstance) {
       async (request, reply) => {
         const userId = await request.getCurrentUserId();
         const { id } = request.params;
-        const { title, steps, footerText, description } = request.body;
+        const { title, steps, footer_text, description } = request.body;
 
         const existingGuide = await prisma.guide.findUnique({
           where: { id },
@@ -133,6 +133,8 @@ export async function updateGuide(app: FastifyInstance) {
             })
           );
 
+          console.log("footer_text", footer_text);
+
           const updatedGuide = await prisma.guide.update({
             where: { id },
             include: {
@@ -149,8 +151,8 @@ export async function updateGuide(app: FastifyInstance) {
             },
             data: {
               title,
-              footerText,
               description,
+              footerText: footer_text || undefined,
               steps: {
                 deleteMany: {},
                 create: steps.map((step, index) => ({
@@ -172,6 +174,8 @@ export async function updateGuide(app: FastifyInstance) {
               },
             },
           });
+
+          console.log("updatedGuide", updatedGuide.footerText);
 
           const updatedGuideFormatted = {
             guide: {
