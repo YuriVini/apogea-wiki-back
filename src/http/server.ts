@@ -17,13 +17,14 @@ import { equipmentsRoutes } from "./routes/equipments";
 import { otherItemsRoutes } from "./routes/other-items";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
-const isDevelopment = process.env.NODE_ENV === "development";
+const isDevelopment = process.env.ENV === "development";
 
 app.setSerializerCompiler(serializerCompiler);
 app.setValidatorCompiler(validatorCompiler);
 app.setErrorHandler(errorHandler);
 
 if (isDevelopment) {
+  console.log("Swagger is enabled");
   app.register(fastifySwagger, {
     transform: jsonSchemaTransform,
     openapi: {
