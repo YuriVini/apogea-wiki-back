@@ -17,26 +17,30 @@ import { equipmentsRoutes } from "./routes/equipments";
 import { otherItemsRoutes } from "./routes/other-items";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
+const isDevelopment = process.env.NODE_ENV === "development";
 
 app.setSerializerCompiler(serializerCompiler);
 app.setValidatorCompiler(validatorCompiler);
 app.setErrorHandler(errorHandler);
 
-app.register(fastifySwagger, {
-  transform: jsonSchemaTransform,
-  openapi: {
-    servers: [],
-    info: {
-      version: "1.0.0",
-      title: "Apogea API",
-      description: "API for managing Apogea applications.",
+if (isDevelopment) {
+  app.register(fastifySwagger, {
+    transform: jsonSchemaTransform,
+    openapi: {
+      servers: [],
+      info: {
+        version: "1.0.0",
+        title: "Apogea API",
+        description: "API for managing Apogea applications.",
+      },
     },
-  },
-});
+  });
 
-app.register(fastifySwaggerUI, {
-  routePrefix: "/docs",
-});
+  app.register(fastifySwaggerUI, {
+    routePrefix: "/docs",
+  });
+}
+
 app.register(fastifyJwt, {
   secret: "secret-key",
 });
