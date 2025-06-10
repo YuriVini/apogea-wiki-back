@@ -61,6 +61,7 @@ export const getGuidesByUserId = async (app: FastifyInstance) => {
         ...guide,
         userId: guide.userId,
         author: guide.user.name,
+        footer_text: guide.footerText || undefined,
         steps: guide.steps.map((step) => ({
           hint: step.hint || undefined,
           note: step.note || undefined,
