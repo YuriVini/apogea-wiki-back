@@ -55,16 +55,40 @@ model Token {
 model Guide {
   id          String   @id @default(uuid())
   title       String
-  steps       String
-  footerText  String   @map("footer_text")
   description String
+  footerText  String   @map("footer_text")
+  steps       Step[]
   createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
+  // Relations
   user    User     @relation(fields: [userId], references: [id])
-  userId  String   @default("") @map("user_id")
+  userId  String   @map("user_id")
   ratings Rating[]
 
   @@map("guides")
+}
+
+model Step {
+  id          String   @id @default(uuid())
+  title       String?
+  description String?
+  hint        String?
+  note        String?
+  advice      String?
+  benefit     String?
+  imageUrl    String?  @map("image_url")
+  order       Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  guide      Guide       @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  guideId    String      @map("guide_id")
+  equipments Equipment[] @relation("step_equipment")
+  items      OtherItem[] @relation("step_items")
+
+  @@map("steps")
 }
 
 enum CharacterClass {
@@ -144,6 +168,7 @@ model Equipment {
   accessoryBuilds Build[] @relation("accessory")
   legsBuilds      Build[] @relation("legs")
   necklaceBuilds  Build[] @relation("necklace")
+  steps           Step[]  @relation("step_equipment")
 
   @@map("equipments")
 }
@@ -200,6 +225,9 @@ model OtherItem {
 
   // NPC specific fields
   npcLocation String? @map("npc_location")
+
+  // Relations
+  steps Step[] @relation("step_items")
 
   @@map("other_items")
 }

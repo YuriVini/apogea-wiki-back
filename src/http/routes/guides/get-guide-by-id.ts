@@ -4,6 +4,8 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
 import { NotFoundError } from "../_errors/not-found";
+import { equipmentSchema } from "../equipments/list-equipments";
+import { otherItemSchema } from "../other-items/get-other-item-by-id";
 
 export const stepsSchema = z.object({
   hint: z.string().optional(),
@@ -13,7 +15,20 @@ export const stepsSchema = z.object({
   benefit: z.string().optional(),
   image_url: z.string().optional(),
   description: z.string().optional(),
-  items: z.array(z.string()).optional(),
+  items: z.array(z.string().uuid()).optional(),
+  equipments: z.array(z.string().uuid()).optional(),
+});
+
+export const stepsSchemaResponse = z.object({
+  hint: z.string().optional(),
+  note: z.string().optional(),
+  title: z.string().optional(),
+  advice: z.string().optional(),
+  benefit: z.string().optional(),
+  image_url: z.string().optional(),
+  description: z.string().optional(),
+  items: z.array(otherItemSchema).optional(),
+  equipments: z.array(equipmentSchema).optional(),
 });
 
 export const guideSchema = z.object({
@@ -21,9 +36,9 @@ export const guideSchema = z.object({
   title: z.string(),
   userId: z.string(),
   author: z.string(),
-  steps: z.array(stepsSchema),
   description: z.string().optional(),
   footer_text: z.string().optional(),
+  steps: z.array(stepsSchemaResponse),
 });
 
 export const getGuideById = async (app: FastifyInstance) => {
@@ -37,7 +52,9 @@ export const getGuideById = async (app: FastifyInstance) => {
           id: z.string().uuid(),
         }),
         response: {
-          200: guideSchema,
+          200: z.object({
+            guide: guideSchema,
+          }),
           404: z.object({
             message: z.string(),
           }),
@@ -51,6 +68,15 @@ export const getGuideById = async (app: FastifyInstance) => {
         where: { id },
         include: {
           user: true,
+          steps: {
+            orderBy: {
+              order: "asc",
+            },
+            include: {
+              items: true,
+              equipments: true,
+            },
+          },
         },
       });
 
@@ -58,13 +84,23 @@ export const getGuideById = async (app: FastifyInstance) => {
         throw new NotFoundError("Guia não encontrado");
       }
 
-      const steps = JSON.parse(guide.steps) as Array<z.infer<typeof stepsSchema>>;
-
       return reply.status(200).send({
-        ...guide,
-        steps,
-        userId: guide.userId,
-        author: guide.user.name,
+        guide: {
+          ...guide,
+          userId: guide.userId,
+          author: guide.user.name,
+          steps: guide.steps.map((step) => ({
+            hint: step.hint || undefined,
+            note: step.note || undefined,
+            title: step.title || undefined,
+            advice: step.advice || undefined,
+            benefit: step.benefit || undefined,
+            image_url: step.imageUrl || undefined,
+            description: step.description || undefined,
+            items: step.items?.length > 0 ? step.items : undefined,
+            equipments: step.equipments?.length > 0 ? step.equipments : undefined,
+          })),
+        },
       });
     }
   );

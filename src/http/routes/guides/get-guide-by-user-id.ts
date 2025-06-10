@@ -17,9 +17,11 @@ export const getGuidesByUserId = async (app: FastifyInstance) => {
           userId: z.string().uuid(),
         }),
         response: {
-          200: z.array(guideSchema),
           404: z.object({
             message: z.string(),
+          }),
+          200: z.object({
+            guides: z.array(guideSchema),
           }),
         },
       },
@@ -43,6 +45,15 @@ export const getGuidesByUserId = async (app: FastifyInstance) => {
         },
         include: {
           user: true,
+          steps: {
+            orderBy: {
+              order: "asc",
+            },
+            include: {
+              items: true,
+              equipments: true,
+            },
+          },
         },
       });
 
@@ -50,10 +61,22 @@ export const getGuidesByUserId = async (app: FastifyInstance) => {
         ...guide,
         userId: guide.userId,
         author: guide.user.name,
-        steps: JSON.parse(guide.steps),
+        steps: guide.steps.map((step) => ({
+          hint: step.hint || undefined,
+          note: step.note || undefined,
+          items: step.items || undefined,
+          title: step.title || undefined,
+          advice: step.advice || undefined,
+          benefit: step.benefit || undefined,
+          image_url: step.imageUrl || undefined,
+          equipments: step.equipments || undefined,
+          description: step.description || undefined,
+        })),
       }));
 
-      return reply.status(200).send(formattedGuides);
+      return reply.status(200).send({
+        guides: formattedGuides,
+      });
     }
   );
 };

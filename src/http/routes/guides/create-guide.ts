@@ -4,10 +4,23 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { prisma } from "../../../lib/prisma";
 import { auth } from "../../middlewares/auth";
-import { type stepsSchema } from "./get-guide-by-id";
 import { BadRequestError } from "../_errors/bad-request";
 import { PREFIX_URL } from "../../../services/awsServices";
 import { UnauthorizedError } from "../_errors/unauthorized";
+
+const stepSchema = z.object({
+  hint: z.string().optional(),
+  note: z.string().optional(),
+  title: z.string().optional(),
+  advice: z.string().optional(),
+  benefit: z.string().optional(),
+  image_url: z.string().optional(),
+  description: z.string().optional(),
+  items: z.array(z.string().uuid()).optional(),
+  equipments: z.array(z.string().uuid()).optional(),
+});
+
+type Step = z.infer<typeof stepSchema>;
 
 export const createGuide = async (app: FastifyInstance) => {
   app
@@ -19,6 +32,12 @@ export const createGuide = async (app: FastifyInstance) => {
         schema: {
           tags: ["guides"],
           summary: "Create a guide",
+          body: z.object({
+            steps: z.array(stepSchema),
+            title: z.string().optional(),
+            footer_text: z.string().optional(),
+            description: z.string().optional(),
+          }),
           response: {
             400: z.object({
               message: z.string(),
@@ -31,23 +50,6 @@ export const createGuide = async (app: FastifyInstance) => {
               guideId: z.string().uuid(),
             }),
           },
-          body: z.object({
-            title: z.string().optional(),
-            footer_text: z.string().optional(),
-            description: z.string().optional(),
-            steps: z.array(
-              z.object({
-                hint: z.string().optional(),
-                note: z.string().optional(),
-                title: z.string().optional(),
-                advice: z.string().optional(),
-                benefit: z.string().optional(),
-                image_url: z.string().optional(),
-                description: z.string().optional(),
-                items: z.array(z.string()).optional(),
-              })
-            ),
-          }),
         },
       },
       async (request, reply) => {
@@ -58,40 +60,49 @@ export const createGuide = async (app: FastifyInstance) => {
           throw new UnauthorizedError("Você não está autorizado a criar um guia");
         }
 
-        const stepsWithImageUrls = await Promise.all(
-          steps.map(async (step: z.infer<typeof stepsSchema>) => {
-            if (step.image_url) {
-              return {
-                ...step,
-                image_url: `${PREFIX_URL}/${step.image_url}`,
-              };
-            }
-            return step;
-          })
-        );
-
-        try {
-          const guide = await prisma.guide.create({
-            data: {
-              userId,
-              title: title || "",
-              footerText: footer_text || "",
-              description: description || "",
-              steps: JSON.stringify(stepsWithImageUrls),
+        const guide = await prisma.guide.create({
+          data: {
+            title: title || "",
+            footerText: footer_text || "",
+            description: description || "",
+            user: {
+              connect: {
+                id: userId,
+              },
             },
-          });
+            steps: {
+              create: steps.map((step: Step, index) => ({
+                order: index,
+                hint: step.hint || "",
+                note: step.note || "",
+                title: step.title || "",
+                advice: step.advice || "",
+                benefit: step.benefit || "",
+                description: step.description || "",
+                imageUrl: step.image_url ? `${PREFIX_URL}/${step.image_url}` : null,
+                items: step.items
+                  ? {
+                      connect: step.items.map((id) => ({ id })),
+                    }
+                  : undefined,
+                equipments: step.equipments
+                  ? {
+                      connect: step.equipments.map((id) => ({ id })),
+                    }
+                  : undefined,
+              })),
+            },
+          },
+        });
 
-          if (!guide) {
-            throw new BadRequestError("Ocorreu um erro ao criar o guia");
-          }
-
-          return reply.status(201).send({
-            guideId: guide.id,
-            message: "Guide created successfully",
-          });
-        } catch (error) {
-          throw new BadRequestError("Ocorreu um erro ao criar o guia\n\n" + JSON.stringify(error));
+        if (!guide) {
+          throw new BadRequestError("Ocorreu um erro ao criar o guia");
         }
+
+        return reply.status(201).send({
+          guideId: guide.id,
+          message: "Guide created successfully",
+        });
       }
     );
 };
