@@ -1,5 +1,11 @@
 {
-  "extends": ["eslint:recommended", "plugin:react/jsx-runtime", "plugin:perfectionist/recommended-natural-legacy", "standard-with-typescript", "plugin:prettier/recommended"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:perfectionist/recommended-natural-legacy",
+    "standard-with-typescript",
+    "plugin:prettier/recommended"
+  ],
   "parserOptions": {
     "project": "./tsconfig.json"
   },
@@ -72,8 +78,11 @@
       "error",
       {
         "code": 130,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
         "ignoreRegExpLiterals": true,
-        "ignoreStrings": true
+        "ignoreComments": true,
+        "ignoreUrls": true
       }
     ],
     "react/jsx-filename-extension": [

@@ -112,7 +112,10 @@ export async function updateGuide(app: FastifyInstance) {
           const imagesToDelete = oldSteps
             .filter((oldStep) => {
               const newStep = steps.find((s) => s.title === oldStep.title);
-              return oldStep.imageUrl && (!newStep?.image_url || newStep.image_url !== oldStep.imageUrl);
+              const newImageUrl = newStep?.image_url?.split(`${PREFIX_URL}/`)?.[1];
+              const oldImageUrl = oldStep?.imageUrl?.split(`${PREFIX_URL}/`)?.[1];
+
+              return oldStep.imageUrl && (!newImageUrl || newImageUrl !== oldImageUrl);
             })
             .map((step) => {
               if (step.imageUrl && typeof step.imageUrl === "string") {
@@ -161,13 +164,17 @@ export async function updateGuide(app: FastifyInstance) {
                   advice: step.advice || "",
                   benefit: step.benefit || "",
                   description: step.description || "",
-                  imageUrl: step.image_url ? `${PREFIX_URL}/${step.image_url}` : null,
                   items: {
                     connect: step.items?.map((id) => ({ id })) || [],
                   },
                   equipments: {
                     connect: step.equipments?.map((id) => ({ id })) || [],
                   },
+                  imageUrl: step.image_url
+                    ? step.image_url.startsWith(PREFIX_URL)
+                      ? step.image_url
+                      : `${PREFIX_URL}/${step.image_url}`
+                    : null,
                 })),
               },
             },
