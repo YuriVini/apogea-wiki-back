@@ -133,8 +133,6 @@ export async function updateGuide(app: FastifyInstance) {
             })
           );
 
-          console.log("footer_text", footer_text);
-
           const updatedGuide = await prisma.guide.update({
             where: { id },
             include: {
@@ -174,8 +172,6 @@ export async function updateGuide(app: FastifyInstance) {
               },
             },
           });
-
-          console.log("updatedGuide", updatedGuide.footerText);
 
           const updatedGuideFormatted = {
             guide: {
